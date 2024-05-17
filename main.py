@@ -1,93 +1,14 @@
 import pygame
 import random
-
-# Inicializar o Pygame
-pygame.init()
-
-# Definir as dimensões da tela
-screen_width = 800
-screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Corrida de Fórmula E")
-
-# Definir cores
-white = (255, 255, 255)
-black = (0, 0, 0)
-red = (255, 0, 0)
-green = (0, 255, 0)
-blue = (0, 0, 255)
-
-# Carregar imagens
-car_image = pygame.image.load('./car.png').convert_alpha()
-car_width = car_image.get_width()
-car_height = car_image.get_height()
-car_mask = pygame.mask.from_surface(car_image)
-
-obstacle_options = ['./obstacle.png', './obstacle1.png', './obstacle2.png', './obstacle3.png']
-obstacle_images = [pygame.image.load(image).convert_alpha() for image in obstacle_options]
-pad_image = pygame.image.load('./pad.png').convert_alpha()
-pad_mask = pygame.mask.from_surface(pad_image)
-road_image = pygame.image.load('./road.png').convert_alpha()  # Adicione a textura da estrada
-
-
-# Função para exibir o carro
-def car(x, y):
-    screen.blit(car_image, (x, y))
-
-# Função para desenhar obstáculos
-def obstacles(obst_x, obst_y, obstacle_image):
-    screen.blit(obstacle_image, (obst_x, obst_y))
-
-# Função para desenhar pads
-def pad(x, y):
-    screen.blit(pad_image, (x, y))
-
-# Função para verificar colisão pixel-perfect
-def is_collision(car_x, car_y, obj_x, obj_y, car_mask, obj_mask):
-    offset_x = int(obj_x - car_x)
-    offset_y = int(obj_y - car_y)
-    return car_mask.overlap(obj_mask, (offset_x, offset_y)) is not None
-
-# Função para exibir texto
-def display_text(text, font_size, color, x, y):
-    font = pygame.font.SysFont(None, font_size)
-    render = font.render(text, True, color)
-    screen.blit(render, (x, y))
-
-# Função para desenhar a estrada
-def draw_road(y):
-    screen.blit(road_image, (250, y))
-    screen.blit(road_image, (250, y - screen_height))
-
-# Função para desenhar a barra de boost
-def draw_boost_bar(pads_collected, boost_active, boost_timer):
-    bar_width = 200
-    bar_height = 20
-    bar_x = 10
-    bar_y = 100
-    padding = 3
-
-    # Fundo da barra
-    pygame.draw.rect(screen, black, (bar_x, bar_y, bar_width, bar_height))
-
-    # Barra de progresso
-    if boost_active:
-        elapsed = (pygame.time.get_ticks() - boost_timer) / 5000
-        boost_progress = max(0, 1 - elapsed)
-        pygame.draw.rect(screen, green, (bar_x + padding, bar_y + padding, (bar_width - 2 * padding) * boost_progress, bar_height - 2 * padding))
-    elif not boost_active and pads_collected <= 3:
-            boost_progress = pads_collected / 3
-            pygame.draw.rect(screen, green, (bar_x + padding, bar_y + padding, (bar_width - 2 * padding) * boost_progress, bar_height - 2 * padding))
-    else:
-        boost_progress = 1
-        pygame.draw.rect(screen, green, (bar_x + padding, bar_y + padding, (bar_width - 2 * padding) * boost_progress, bar_height - 2 * padding))
-        
-
-    # Bordas da barra
-    pygame.draw.rect(screen, white, (bar_x, bar_y, bar_width, bar_height), 2)
+from config import screen_width, screen_height, title, white, black
+from function_basic import is_collision, car, pad, obstacles, draw_road, display_text, draw_boost_bar
+from sprite import car_mask, car_width, car_height, obstacle_images, pad_mask
 
 # Função principal do jogo
 def game_loop():
+    pygame.init()
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    pygame.display.set_caption(title)
     # Posição inicial do carro
     car_x = (screen_width * 0.45)
     car_y = (screen_height * 0.8)
@@ -224,5 +145,7 @@ def game_loop():
     pygame.quit()
     quit()
 
+
 # Iniciar o jogo
-game_loop()
+if __name__ == "__main__":
+    game_loop()

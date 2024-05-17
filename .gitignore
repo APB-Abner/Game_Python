@@ -1,0 +1,5 @@
+# ignore tests
+*tests.py
+
+# ignore cache logs
+**/__pycache__
