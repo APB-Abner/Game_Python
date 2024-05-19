@@ -11,3 +11,5 @@ obstacle_images = [pygame.image.load(image).convert_alpha() for image in obstacl
 pad_image = pygame.image.load('./img/pad.png').convert_alpha()
 pad_mask = pygame.mask.from_surface(pad_image)
 road_image = pygame.image.load('./img/road.png').convert_alpha()
+back_image = pygame.image.load('./img/back.jpg')
+back_menu = pygame.image.load('./img/back_menu.jpg')

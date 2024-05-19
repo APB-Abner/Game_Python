@@ -3,6 +3,7 @@ import random
 from config import screen_width, screen_height, title, white, black
 from function_basic import is_collision, car, pad, obstacles, draw_road, display_text, draw_boost_bar
 from sprite import car_mask, car_width, car_height, obstacle_images, pad_mask
+from menus import pause_menu, main_menu
 
 # Função principal do jogo
 def game_loop():
@@ -20,7 +21,6 @@ def game_loop():
     obst_speed = 7
     obstacle_image = random.choice(obstacle_images)
     obstacle_mask = pygame.mask.from_surface(obstacle_image)
-
 
     # Inicializar a posição dos pads
     pad_startx = random.randrange(0, screen_width - car_width)
@@ -46,6 +46,9 @@ def game_loop():
     # Variável para controlar o loop principal
     game_exit = False
 
+    # Mostrar o menu principal antes de iniciar o jogo
+    main_menu(screen)
+
     while not game_exit:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -64,6 +67,9 @@ def game_loop():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                     car_x_change = 0
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE or event.key == pygame.K_p:
+                    pause_menu(screen)
 
         # Atualizar a posição do carro
         car_x += car_x_change
@@ -92,6 +98,7 @@ def game_loop():
         if is_collision(car_x, car_y, obst_startx, obst_starty, car_mask, obstacle_mask):
             print("Colisão!")
             game_exit = True
+            main_menu(screen)
 
         # Verificar colisão com pads
         if is_collision(car_x, car_y, pad_startx, pad_starty, car_mask, pad_mask):

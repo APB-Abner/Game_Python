@@ -1,6 +1,6 @@
 import pygame
-from config import screen_width, screen_height, screen, white, black, green
-from sprite import car_image, car_mask, car_width, car_height, obstacle_images, pad_image, pad_mask, road_image
+from config import screen_width, screen_height, screen, white, black, green, black_alpha
+from sprite import car_image, car_mask, car_width, car_height, obstacle_images, pad_image, pad_mask, road_image, back_image
 
 # Função para exibir o carro
 def car(x, y):
@@ -28,12 +28,17 @@ def display_text(text, font_size, color, x, y):
 
 # Função para desenhar a estrada
 def draw_road(y):
+    back_image_d = pygame.transform.flip(back_image, True, False)
     # screen.blit(road_image, (250, y))
     # screen.blit(road_image, (250, y - screen_height))
     screen.blit(road_image, (125, y))
     screen.blit(road_image, (125, y - screen_height))
     screen.blit(road_image, (375, y))
     screen.blit(road_image, (375, y - screen_height))
+    screen.blit(back_image, (0, y))
+    screen.blit(back_image, (0, y - screen_height))
+    screen.blit(back_image_d, (675, y))
+    screen.blit(back_image_d, (675, y - screen_height))
 
 # Função para desenhar a barra de boost
 def draw_boost_bar(pads_collected, boost_active, boost_timer):
