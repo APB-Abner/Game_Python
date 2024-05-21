@@ -1,4 +1,5 @@
 import pygame
+from config import black, gray, resolution, fullscreen, language
 
 class Button():
 	def __init__(self, image, pos, text_input, font, base_color, hovering_color):
@@ -45,3 +46,43 @@ def draw_button(screen, text, font, color, rect, action=None):
     if rect.collidepoint(mouse):
         if click[0] == 1 and action is not None:
             action()
+
+
+def toggle_fullscreen():
+    global fullscreen
+    fullscreen = not fullscreen
+    if fullscreen:
+        pygame.display.set_mode(resolution, pygame.FULLSCREEN)
+    else:
+        pygame.display.set_mode(resolution)
+
+def change_resolution(new_resolution):
+    global resolution
+    resolution = new_resolution
+    if fullscreen:
+        pygame.display.set_mode(resolution, pygame.FULLSCREEN)
+    else:
+        pygame.display.set_mode(resolution)
+
+def change_language():
+    global language
+    languages = ['English', 'Português', 'Español', 'Français']
+    current_index = languages.index(language)
+    language = languages[(current_index + 1) % len(languages)]
+
+        
+def draw_text(text, font, color, surface, x, y):
+    textobj = font.render(text, True, color)
+    textrect = textobj.get_rect()
+    textrect.topleft = (x, y)
+    surface.blit(textobj, textrect)
+    
+def draw_slider(screen, x, y, w, h, value):
+    pygame.draw.rect(screen, gray, (x, y, w, h))
+    handle_pos = int(x + (w - 20) * value)
+    pygame.draw.rect(screen, black, (handle_pos, y, 20, h))
+
+def adjust_slider_value(x, y, w, value):
+    mouse_x = pygame.mouse.get_pos()[0]
+    new_value = (mouse_x - x) / (w - 20)
+    return max(0, min(1, new_value))

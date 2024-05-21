@@ -10,6 +10,9 @@ def game_loop():
     pygame.init()
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption(title)
+    speed_basic = 7
+    speed_boost = speed_basic * 2
+
     # Posição inicial do carro
     car_x = (screen_width * 0.45)
     car_y = (screen_height * 0.8)
@@ -18,14 +21,14 @@ def game_loop():
     # Inicializar a posição dos obstáculos
     obst_startx = random.randrange(0, screen_width - car_width)
     obst_starty = -car_height
-    obst_speed = 7
+    obst_speed = speed_basic
     obstacle_image = random.choice(obstacle_images)
     obstacle_mask = pygame.mask.from_surface(obstacle_image)
 
     # Inicializar a posição dos pads
     pad_startx = random.randrange(0, screen_width - car_width)
     pad_starty = -car_height
-    pad_speed = 7
+    pad_speed = speed_basic
 
     # Variáveis do boost
     pads_collected = 0
@@ -33,11 +36,12 @@ def game_loop():
     boost_timer = 0
 
     # Variável de pontuação
-    score = 0
+    # score = 0
+    score = 1
 
     # Variáveis de rolagem da estrada
     road_y = 0
-    road_speed = 7
+    road_speed = speed_basic
 
     # Iniciar a contagem de frames
     clock = pygame.time.Clock()
@@ -112,7 +116,7 @@ def game_loop():
             obst_startx = random.randrange(0, screen_width - car_width)
             obstacle_image = random.choice(obstacle_images)
             obstacle_mask = pygame.mask.from_surface(obstacle_image)
-            score += 1
+            # score += 1
 
         # Resetar o pad quando sair da tela
         if pad_starty > screen_height:
@@ -121,23 +125,22 @@ def game_loop():
 
         # Incrementar a dificuldade a cada 20 segundos
         elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
-        if elapsed_time > 20:
-            obst_speed *= 1.15
-            road_speed *= 1.15
-            pad_speed *= 1.15
+        if elapsed_time > 5:
+            speed_basic *= 1.15
             start_time = pygame.time.get_ticks()
 
         # Atualizar o boost
         if boost_active:
             if pygame.time.get_ticks() - boost_timer < 5000:
-                obst_speed = 14
-                pad_speed = 14
-                road_speed = 14
+                obst_speed = speed_boost
+                pad_speed = speed_boost
+                road_speed = speed_boost
+                pads_collected = 0
             else:
                 boost_active = False
-                obst_speed = 7
-                pad_speed = 7
-                road_speed = 7
+                obst_speed = speed_basic
+                pad_speed = speed_basic
+                road_speed = speed_basic
 
         # Mostrar informações na tela
         display_text(f'Pontuação: {score}', 30, black, 10, 10)
