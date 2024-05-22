@@ -2,7 +2,7 @@ import pygame
 import random
 from config import screen_width, screen_height, title, white, black, track_left_limit, track_right_limit
 from function_basic import is_collision, car, pad, obstacles, draw_road, display_text, draw_boost_bar, draw_with_perspective
-from sprite import car_mask, car_width, car_height, obstacle_images, pad_mask, pad_image, Animation, spritesheet
+from sprite import car_mask, car_width, car_height, obstacle_images, pad_mask, pad_image, Animation, spritesheet, slow_obstacle_image, slow_obstacle_mask
 from menus import pause_menu, main_menu
 
 # Função principal do jogo
@@ -12,22 +12,27 @@ def game_loop():
     pygame.display.set_caption(title)
     speed_basic = 3
     speed_boost = speed_basic * 2
+    speed_slow = speed_basic / 2
 
     # Posição inicial do carro
     car_x = (screen_width * 0.45)
     car_y = (screen_height * 0.8)
     car_x_change = 0
+    speed_player_r = 5
+    speed_player_l = -5
 
     # Inicializar a posição dos obstáculos
     obst_startx = random.randrange(0, screen_width - car_width)
     obst_starty = -car_height
     obst_speed = speed_basic
+    obst_scale = 0
     obstacle_image = random.choice(obstacle_images)
     obstacle_mask = pygame.mask.from_surface(obstacle_image)
 
     # Inicializar a posição dos pads
     pad_startx = random.randrange(0, screen_width - car_width)
     pad_starty = -car_height
+    pad_scale = 0
     pad_speed = speed_basic
 
 
@@ -43,7 +48,6 @@ def game_loop():
     boost_timer = 0
 
     # Variáveis de rolagem da estrada
-    road_y = 0
     road_speed = speed_basic
 
     
@@ -83,9 +87,9 @@ def game_loop():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    car_x_change = -5
+                    car_x_change = speed_player_l
                 elif event.key == pygame.K_RIGHT:
-                    car_x_change = 5
+                    car_x_change = speed_player_r
                 elif event.key == pygame.K_SPACE and pads_collected >= 3:
                     boost_active = True
                     boost_timer = pygame.time.get_ticks()
@@ -209,9 +213,13 @@ def game_loop():
         # Atualizar a redução de velocidade
         if 'slow_timer' in locals():
             if pygame.time.get_ticks() - slow_timer < 5000:
-                speed_basic = original_speed_basic / 2
+                obst_speed = speed_slow
+                pad_speed = speed_slow
+                road_speed = speed_slow
             else:
-                speed_basic = original_speed_basic
+                obst_speed = speed_basic
+                pad_speed = speed_basic
+                road_speed = speed_basic
 
         # Mostrar informações na tela
         display_text(f'Distância: {int(distance)}', 30, white, 10, 10)

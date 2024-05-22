@@ -52,6 +52,7 @@ back_image = pygame.image.load('./img/back.jpg')
 back_menu = pygame.image.load('./img/back_menu.jpg')
 
 # Carregar imagens dos obstáculos de redução de velocidade
-slow_obstacles_images = ['./sprit_road-1.png','./img/car.png']  # Substitua com as imagens dos obstáculos que reduzem a velocidade
+slow_obstacles_options = ['./img/slow_pad.png','./img/car.png']  # Substitua com as imagens dos obstáculos que reduzem a velocidade
+slow_obstacles_images = [pygame.image.load(image).convert_alpha() for image in obstacle_options]
 slow_obstacle_image = random.choice(slow_obstacles_images)
 slow_obstacle_mask = pygame.mask.from_surface(slow_obstacle_image)
