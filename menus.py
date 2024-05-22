@@ -33,6 +33,7 @@ def main_menu(screen):
         nonlocal menu_active
         menu_active = False
 
+
     def quit_game():
         pygame.quit()
         quit()

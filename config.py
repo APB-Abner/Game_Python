@@ -11,6 +11,9 @@ master_volume = 0.5
 sfx_volume = 0.5
 music_volume = 0.5
 ambient_volume = 0.5
+track_left_limit = 100  # Posição X inicial da pista
+track_right_limit = screen_width - 100  # Posição X final da pista
+
 
 # Definir cores
 white = (255, 255, 255)
@@ -21,3 +24,7 @@ blue = (0, 0, 255)
 gray = (200, 200, 200)
 light_gray = (220, 220, 220)
 black_alpha = pygame.Color(0, 0, 0, 15)
+
+
+
+

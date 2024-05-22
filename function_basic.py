@@ -1,5 +1,6 @@
 import pygame
-from config import screen_width, screen_height, screen, white, black, green, black_alpha
+import random
+from config import screen_width, screen_height, screen, white, black, green, black_alpha, track_left_limit, track_right_limit
 from sprite import car_image, car_mask, car_width, car_height, obstacle_images, pad_image, pad_mask, road_image, back_image
 
 # Função para exibir o carro
@@ -25,6 +26,12 @@ def display_text(text, font_size, color, x, y):
     font = pygame.font.SysFont(None, font_size)
     render = font.render(text, True, color)
     screen.blit(render, (x, y))
+
+def draw_with_perspective(image, x, y, scale):
+    # Redimensionar a imagem
+    scaled_image = pygame.transform.scale(image, (int(image.get_width() * scale), int(image.get_height() * scale)))
+    # Desenhar a imagem na tela
+    screen.blit(scaled_image, (x - scaled_image.get_width() // 2, y - scaled_image.get_height() // 2))
 
 # Função para desenhar a estrada
 def draw_road(y):
