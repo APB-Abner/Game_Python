@@ -1,7 +1,7 @@
 import pygame
-from config import screen, gray, black
-from sprite import car_image, obstacle_images, pad_image, pad_mask, back_image, back_menu, slow_obstacle_image, slow_obstacle_mask, car_height, car_width
-from function_basic import obstacles, draw_boost_bar, car, pad, slow_obstacle
+import json
+from config import screen, gray, black, green, white
+from sprite import pad_image, slow_obstacle_image, car_image
 
 class Spritesheet:
     def __init__(self, filename):
@@ -33,6 +33,34 @@ class Animation:
 
     def get_current_frame(self):
         return self.frames[self.current_frame]
+
+# Funções relacionadas ao desenho dos elementos visuais do jogo
+def car(x, y):
+    """Desenha o carro na tela."""
+    screen.blit(car_image, (x, y))
+
+def draw_boost_bar(pads_collected, boost_active, boost_timer):
+    """Desenha a barra de boost na tela."""
+    bar_width = 200
+    bar_height = 20
+    bar_x = 10
+    bar_y = 100
+    padding = 3
+
+    pygame.draw.rect(screen, black, (bar_x, bar_y, bar_width, bar_height))
+
+    if boost_active:
+        elapsed = (pygame.time.get_ticks() - boost_timer) / 5000
+        boost_progress = max(0, 1 - elapsed)
+        pygame.draw.rect(screen, green, (bar_x + padding, bar_y + padding, (bar_width - 2 * padding) * boost_progress, bar_height - 2 * padding))
+    elif not boost_active and pads_collected <= 3:
+            boost_progress = pads_collected / 3
+            pygame.draw.rect(screen, green, (bar_x + padding, bar_y + padding, (bar_width - 2 * padding) * boost_progress, bar_height - 2 * padding))
+    else:
+        boost_progress = 1
+        pygame.draw.rect(screen, green, (bar_x + padding, bar_y + padding, (bar_width - 2 * padding) * boost_progress, bar_height - 2 * padding))
+
+    pygame.draw.rect(screen, white, (bar_x, bar_y, bar_width, bar_height), 2)
 
 # Funções relacionadas à manipulação de texto e imagens
 def display_text(text, font_size, color, x, y):
@@ -70,23 +98,53 @@ class Renderer:
     def render_car(self, car_x, car_y):
         car(car_x, car_y)
 
-    def render_obstacle(self, obst_startx, obst_starty):
-        obstacles(obst_startx, obst_starty)
+    def render_obstacle(self, obst_startx, obst_starty, obstacle_image, scale):
+        draw_with_perspective(obstacle_image, obst_startx, obst_starty, scale)
 
-    def render_pad(self, pad_startx, pad_starty):
-        pad(pad_startx, pad_starty)
+    def render_pad(self, pad_startx, pad_starty, scale):
+        draw_with_perspective(pad_image, pad_startx, pad_starty, scale)
 
-    def render_slow_obstacle(self, slow_obst_startx, slow_obst_starty):
-        slow_obstacle(slow_obst_startx, slow_obst_starty)
+    def render_slow_obstacle(self, slow_obst_startx, slow_obst_starty, scale):
+        draw_with_perspective(slow_obstacle_image,slow_obst_startx, slow_obst_starty, scale)
 
     def render_animation(self, animation, x, y):
         current_frame = animation.get_current_frame()
         self.screen.blit(current_frame, (x, y))
 
     def render_hud(self, distance, pads_collected, boost_active, boost_timer, color_text):
+        record = get_high_score()
         font = pygame.font.Font(None, 36)
         text = font.render(f'Distância: {distance}', True, color_text)
+        # text = font.render(f'Recorde: {record}', True, color_text)
         self.screen.blit(text, (10, 10))
         draw_boost_bar(pads_collected, boost_active, boost_timer)
+
         # Adicione mais elementos de HUD conforme necessário
 
+
+def save_score(score):
+    try:
+        with open('scores.json', 'r') as file:
+            scores = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        scores = []
+
+    scores.append(score)
+    with open('scores.json', 'w') as file:
+        json.dump(scores, file)
+
+def get_high_score():
+    try:
+        with open('scores.json', 'r') as file:
+            scores = json.load(file)
+        return max(scores)
+    except (FileNotFoundError, ValueError, json.JSONDecodeError):
+        return 0
+
+def display_scores():
+    try:
+        with open('scores.json', 'r') as file:
+            scores = json.load(file)
+        return scores
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []

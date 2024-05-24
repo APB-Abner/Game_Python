@@ -15,7 +15,6 @@ def main_game_loop(screen):
     menu.main_menu(screen)
     
     while not game_logic.game_exit:
-        dt = game_logic.clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_logic.game_exit = True
