@@ -5,6 +5,8 @@ from config import screen_width, screen_height, track_left_limit, track_right_li
 from buttons import draw_button, toggle_fullscreen, change_language, change_resolution
 from graphics import Renderer, display_text, Animation, Spritesheet, draw_slider, adjust_slider_value, save_score
 from sprite import car_image, obstacle_images, pad_image, car_height, car_width, pad_image, slow_obstacle_image
+from score_manager import save_score, get_high_score, display_scores
+
 
 class GameLogic:
     def __init__(self):
@@ -76,6 +78,9 @@ class GameLogic:
         crashed = True
         clock = pygame.time.Clock()
 
+        save_score(int(distance))
+
+
         while crashed:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -93,6 +98,7 @@ class GameLogic:
             screen.fill((0, 0, 0))
             display_text("Você bateu!", 36, (255, 0, 0), screen_width // 2 - 100, screen_height // 2 - 50)
             display_text(f"Distância: {int(distance)}", 30, white, screen_width // 2 - 100, screen_height // 2)
+            display_text(f"Recorde: {get_high_score()}", 30, white, screen_width // 2 - 100, screen_height // 2 + 30)
             display_text("Pressione R para reiniciar ou Q para sair", 30, white, screen_width // 2 - 200, screen_height // 2 + 50)
             
             pygame.display.update()
@@ -278,7 +284,7 @@ class GameLogic:
 
             if self.collision_check(self.car_x, self.car_y, car_image, self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale):
                 print('Colisão!')
-                # self.crash(screen, self.distance)
+                self.crash(screen, self.distance)
 
             if self.collision_check(self.car_x, self.car_y, car_image, self.pad_startx, self.pad_starty, pad_image, self.pad_scale):
                 self.pads_collected += 1
@@ -343,6 +349,7 @@ class GameLogic:
             screen.fill(white)
             self.draw_transparent_background(screen, 150)  # Background transparency
 
+            display_text("Pontuações:", 36, white, screen_width // 2 - 100, screen_height // 2 - 100)
             draw_button(screen, "Continuar", font, black, resume_button_rect,white, resume_game)
             draw_button(screen, "Opções", font, black, options_button_rect,white, open_options)
             draw_button(screen, "Sair", font, black, quit_button_rect,white, quit_game)
