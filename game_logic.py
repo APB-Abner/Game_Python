@@ -46,6 +46,7 @@ class GameLogic:
         
         self.pads_collected = 0
         self.boost_active = False
+        self.slow_active = False
         self.boost_timer = 0
 
         self.road_speed = self.speed_basic
@@ -60,6 +61,13 @@ class GameLogic:
 
         self.animation = Animation(self.spritesheet, frame_width, frame_height, num_frames)
         self.sprite_pos = pygame.Rect(100, 100, frame_width, frame_height)
+
+        self.obst_delay = random.randint(1000, 3000)
+        self.pad_delay = random.randint(1000, 3000)
+        self.slow_obst_delay = random.randint(1000, 3000)
+        self.last_obst_time = pygame.time.get_ticks()
+        self.last_pad_time = pygame.time.get_ticks()
+        self.last_slow_obst_time = pygame.time.get_ticks()
 
         self.game_exit = False
 
@@ -98,6 +106,7 @@ class GameLogic:
         self.obstacle_image = random.choice(obstacle_images)
         self.obstacle_mask = pygame.mask.from_surface(self.obstacle_image)
         self.obst_targetx = random.randrange(track_left_limit, track_right_limit)
+        self.obst_delay = random.randint(1000, 3000)
 
     def reset_pad(self):
         self.pad_startx = screen_width // 2
@@ -105,6 +114,8 @@ class GameLogic:
         self.pad_scale = 0
         self.pad_speed = self.speed_basic
         self.pad_targetx = random.randrange(track_left_limit, track_right_limit)
+        self.pad_delay = random.randint(1000, 3000)
+
 
     def reset_slow_obstacle(self):
         self.slow_obst_startx = screen_width // 2
@@ -112,6 +123,8 @@ class GameLogic:
         self.slow_obst_scale = 0
         self.slow_obst_speed = self.speed_basic
         self.slow_obst_targetx = random.randrange(track_left_limit, track_right_limit)
+        self.slow_obst_delay = random.randint(5000, 10000)
+
 
     def reset(self):
         self.car_x = (screen_width * 0.45)
@@ -139,6 +152,7 @@ class GameLogic:
         self.slow_obst_startx = (track_left_limit + track_right_limit) // 2
         self.slow_obst_starty = screen_height // 2
         self.slow_obst_scale = 0.1
+        self.slow_active = False
         self.slow_obst_speed = self.speed_basic
 
         
@@ -181,6 +195,7 @@ class GameLogic:
                         self.pause_menu(screen)
                         self.clock.tick()
 
+
             self.render(screen)
             self.car_x += self.car_x_change
             screen.fill((0, 0, 0))
@@ -200,6 +215,22 @@ class GameLogic:
                     self.obst_speed = self.speed_basic
                     self.pad_speed = self.speed_basic
                     self.road_speed = self.speed_basic
+
+            if self.slow_active:
+                if pygame.time.get_ticks() - self.slow_timer < 5000:
+                    self.obst_speed = self.speed_slow
+                    self.pad_speed = self.speed_slow
+                    self.road_speed = self.speed_slow
+                    self.pads_collected = 0
+                    self.speed_player_r = 1
+                    self.speed_player_l = -1
+                else:
+                    self.slow_active = False
+                    self.obst_speed = self.speed_basic
+                    self.pad_speed = self.speed_basic
+                    self.road_speed = self.speed_basic
+                    self.speed_player_r = 5
+                    self.speed_player_l = -5
 
             if self.car_x > track_right_limit - car_width:
                 self.car_x = track_right_limit - car_width
@@ -230,14 +261,16 @@ class GameLogic:
             self.pad_scale = (self.pad_starty - screen_height // 2) / (screen_height // 2) if self.pad_starty > screen_height // 2 else 0
             self.slow_obst_scale = (self.slow_obst_starty - screen_height // 2) / (screen_height // 2) if self.slow_obst_starty > screen_height // 2 else 0
             
+            current_time = pygame.time.get_ticks()
+
             # Resetar o obstáculo quando sair da tela
-            if self.obst_starty > screen_height:
+            if self.obst_starty > screen_height and current_time - self.last_obst_time >= self.obst_delay:
                 self.reset_obstacle()
 
-            if self.pad_starty > screen_height:
+            if self.pad_starty > screen_height and current_time - self.last_pad_time >= self.pad_delay:
                 self.reset_pad()
 
-            if self.slow_obst_starty > screen_height:
+            if self.slow_obst_starty > screen_height and current_time - self.last_slow_obst_time >= self.slow_obst_delay:
                 self.reset_slow_obstacle()
 
             self.animation.update(dt)
@@ -252,7 +285,8 @@ class GameLogic:
                 self.pad_starty = screen_height + car_height
 
             if self.collision_check(self.car_x, self.car_y, car_image, self.slow_obst_startx, self.slow_obst_starty, slow_obstacle_image, self.slow_obst_scale):
-                self.obst_speed = self.speed_slow
+                self.slow_active = True
+                self.slow_timer = pygame.time.get_ticks()
 
             # Incrementar a dificuldade a cada 20 segundos
             elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
