@@ -10,11 +10,8 @@ def initialize_game():
     return pygame.display.set_mode((screen_width, screen_height))
 
 def main_game_loop(screen):
-    game_logic = GameLogic()
     menu = Menu()
     menu.main_menu(screen)
-    
-    
     pygame.quit()
     quit()
 

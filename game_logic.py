@@ -64,6 +64,10 @@ class GameLogic:
         self.animation = Animation(self.spritesheet, frame_width, frame_height, num_frames)
         self.sprite_pos = pygame.Rect(100, 100, frame_width, frame_height)
 
+        self.start_delay = 3000  # 3 segundos em milissegundos
+        self.start_time_d = pygame.time.get_ticks()
+        self.start_time = self.start_time_d
+
         self.obst_delay = random.randint(1000, 3000)
         self.pad_delay = random.randint(1000, 3000)
         self.slow_obst_delay = random.randint(1000, 3000)
@@ -122,7 +126,6 @@ class GameLogic:
         self.pad_targetx = random.randrange(track_left_limit, track_right_limit)
         self.pad_delay = random.randint(1000, 3000)
 
-
     def reset_slow_obstacle(self):
         self.slow_obst_startx = screen_width // 2
         self.slow_obst_starty = screen_height // 2
@@ -130,7 +133,6 @@ class GameLogic:
         self.slow_obst_speed = self.speed_basic
         self.slow_obst_targetx = random.randrange(track_left_limit, track_right_limit)
         self.slow_obst_delay = random.randint(5000, 10000)
-
 
     def reset(self):
         self.car_x = (screen_width * 0.45)
@@ -172,10 +174,6 @@ class GameLogic:
         self.start_time = pygame.time.get_ticks()
     
     def main_loop(self, screen):
-        start_delay = 3000  # 3 segundos em milissegundos
-        start_time = pygame.time.get_ticks()
-
-
 
         while not self.game_exit:
             dt = self.clock.tick(60)
@@ -197,115 +195,112 @@ class GameLogic:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                         self.car_x_change = 0
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_p or event.key == pygame.K_ESCAPE:
-                        self.pause_menu(screen)
-                        self.clock.tick()
+                    if event.key == pygame.K_p:
+                        self.pause(screen)
 
-
-            self.render(screen)
-            self.car_x += self.car_x_change
             screen.fill((0, 0, 0))
-
-            ''' if pygame.time.get_ticks() - start_time < start_delay:
-                pygame.display.update()
-                continue  # Pular o restante do loop até que o delay termine'''
-
-            if self.boost_active:
-                if pygame.time.get_ticks() - self.boost_timer < 5000:
-                    self.obst_speed = self.speed_boost
-                    self.pad_speed = self.speed_boost
-                    self.road_speed = self.speed_boost
-                    self.pads_collected = 0
-                else:
-                    self.boost_active = False
-                    self.obst_speed = self.speed_basic
-                    self.pad_speed = self.speed_basic
-                    self.road_speed = self.speed_basic
-
-            if self.slow_active:
-                if pygame.time.get_ticks() - self.slow_timer < 5000:
-                    self.obst_speed = self.speed_slow
-                    self.pad_speed = self.speed_slow
-                    self.road_speed = self.speed_slow
-                    self.pads_collected = 0
-                    self.speed_player_r = 1
-                    self.speed_player_l = -1
-                else:
-                    self.slow_active = False
-                    self.obst_speed = self.speed_basic
-                    self.pad_speed = self.speed_basic
-                    self.road_speed = self.speed_basic
-                    self.speed_player_r = 5
-                    self.speed_player_l = -5
-
-            if self.car_x > track_right_limit - car_width:
-                self.car_x = track_right_limit - car_width
-            if self.car_x < track_left_limit:
-                self.car_x = track_left_limit
-
-            # Calcular a direção do movimento
-            self.direction_x_obst = (self.obst_targetx - self.obst_startx) / (screen_height / self.obst_speed)
-            self.direction_x_pad = (self.pad_targetx - self.pad_startx) / (screen_height / self.pad_speed)
-            self.direction_x_slow_obst = (self.slow_obst_targetx - self.slow_obst_startx) / (screen_height / self.slow_obst_speed)
-            self.direction_y_obst = self.obst_speed
-            self.direction_y_pad = self.pad_speed
-            self.direction_y_slow_obst = self.slow_obst_speed
-            
-            # Atualizar a posição do obstáculo
-            self.obst_startx += self.direction_x_obst
-            self.obst_starty += self.direction_y_obst
-            # Atualizar a posição do pad
-            self.pad_startx += self.direction_x_pad
-            self.pad_starty += self.direction_y_pad
-            # Atualizar a posição do slow
-            self.slow_obst_startx += self.direction_x_slow_obst
-            self.slow_obst_starty += self.direction_y_slow_obst
-            self.distance += self.road_speed
-
-            # Calcular a escala baseada na posição Y (perspectiva)
-            self.obst_scale = (self.obst_starty - screen_height // 2) / (screen_height // 2) if self.obst_starty > screen_height // 2 else 0
-            self.pad_scale = (self.pad_starty - screen_height // 2) / (screen_height // 2) if self.pad_starty > screen_height // 2 else 0
-            self.slow_obst_scale = (self.slow_obst_starty - screen_height // 2) / (screen_height // 2) if self.slow_obst_starty > screen_height // 2 else 0
-            
-            current_time = pygame.time.get_ticks()
-
-            # Resetar o obstáculo quando sair da tela
-            if self.obst_starty > screen_height and current_time - self.last_obst_time >= self.obst_delay:
-                self.reset_obstacle()
-
-            if self.pad_starty > screen_height and current_time - self.last_pad_time >= self.pad_delay:
-                self.reset_pad()
-
-            if self.slow_obst_starty > screen_height and current_time - self.last_slow_obst_time >= self.slow_obst_delay:
-                self.reset_slow_obstacle()
-
-            self.animation.update(dt)
+            self.car_x += self.car_x_change
             self.render(screen)
 
-            if self.collision_check(self.car_x, self.car_y, car_image, self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale):
-                print('Colisão!')
-                self.crash(screen, self.distance)
+            if not pygame.time.get_ticks() - self.start_time_d < self.start_delay:
 
-            if self.collision_check(self.car_x, self.car_y, car_image, self.pad_startx, self.pad_starty, pad_image, self.pad_scale):
-                self.pads_collected += 1
-                self.pad_starty = screen_height + car_height
+                if self.boost_active:
+                    if pygame.time.get_ticks() - self.boost_timer < 5000:
+                        self.obst_speed = self.speed_boost
+                        self.pad_speed = self.speed_boost
+                        self.road_speed = self.speed_boost
+                        self.pads_collected = 0
+                    else:
+                        self.boost_active = False
+                        self.obst_speed = self.speed_basic
+                        self.pad_speed = self.speed_basic
+                        self.road_speed = self.speed_basic
 
-            if self.collision_check(self.car_x, self.car_y, car_image, self.slow_obst_startx, self.slow_obst_starty, slow_obstacle_image, self.slow_obst_scale):
-                self.slow_active = True
-                self.slow_timer = pygame.time.get_ticks()
+                if self.slow_active:
+                    if pygame.time.get_ticks() - self.slow_timer < 5000:
+                        self.obst_speed = self.speed_slow
+                        self.pad_speed = self.speed_slow
+                        self.road_speed = self.speed_slow
+                        self.pads_collected = 0
+                        self.speed_player_r = 1
+                        self.speed_player_l = -1
+                    else:
+                        self.slow_active = False
+                        self.obst_speed = self.speed_basic
+                        self.pad_speed = self.speed_basic
+                        self.road_speed = self.speed_basic
+                        self.speed_player_r = 5
+                        self.speed_player_l = -5
 
-            # Incrementar a dificuldade a cada 20 segundos
-            elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
-            if elapsed_time > 5:
-                self.obst_speed *= 1.15
-                start_time = pygame.time.get_ticks()
+                if self.car_x > track_right_limit - car_width:
+                    self.car_x = track_right_limit - car_width
+                if self.car_x < track_left_limit:
+                    self.car_x = track_left_limit
 
-            pygame.display.update()
+                # Calcular a direção do movimento
+                self.direction_x_obst = (self.obst_targetx - self.obst_startx) / (screen_height / self.obst_speed)
+                self.direction_x_pad = (self.pad_targetx - self.pad_startx) / (screen_height / self.pad_speed)
+                self.direction_x_slow_obst = (self.slow_obst_targetx - self.slow_obst_startx) / (screen_height / self.slow_obst_speed)
+                self.direction_y_obst = self.obst_speed
+                self.direction_y_pad = self.pad_speed
+                self.direction_y_slow_obst = self.slow_obst_speed
+                
+                # Atualizar a posição do obstáculo
+                self.obst_startx += self.direction_x_obst
+                self.obst_starty += self.direction_y_obst
+                # Atualizar a posição do pad
+                self.pad_startx += self.direction_x_pad
+                self.pad_starty += self.direction_y_pad
+                # Atualizar a posição do slow
+                self.slow_obst_startx += self.direction_x_slow_obst
+                self.slow_obst_starty += self.direction_y_slow_obst
+                self.distance += self.road_speed
 
+                # Calcular a escala baseada na posição Y (perspectiva)
+                self.obst_scale = (self.obst_starty - screen_height // 2) / (screen_height // 2) if self.obst_starty > screen_height // 2 else 0
+                self.pad_scale = (self.pad_starty - screen_height // 2) / (screen_height // 2) if self.pad_starty > screen_height // 2 else 0
+                self.slow_obst_scale = (self.slow_obst_starty - screen_height // 2) / (screen_height // 2) if self.slow_obst_starty > screen_height // 2 else 0
+                
+                current_time = pygame.time.get_ticks()
+
+                # Resetar o obstáculo quando sair da tela
+                if self.obst_starty > screen_height and current_time - self.last_obst_time >= self.obst_delay:
+                    self.reset_obstacle()
+
+                if self.pad_starty > screen_height and current_time - self.last_pad_time >= self.pad_delay:
+                    self.reset_pad()
+
+                if self.slow_obst_starty > screen_height and current_time - self.last_slow_obst_time >= self.slow_obst_delay:
+                    self.reset_slow_obstacle()
+
+                self.animation.update(dt)
+                self.render(screen)
+
+                if self.collision_check(self.car_x, self.car_y, car_image, self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale):
+                    print('Colisão!')
+                    self.crash(screen, self.distance)
+
+                if self.collision_check(self.car_x, self.car_y, car_image, self.pad_startx, self.pad_starty, pad_image, self.pad_scale):
+                    self.pads_collected += 1
+                    self.pad_starty = screen_height + car_height
+
+                if self.collision_check(self.car_x, self.car_y, car_image, self.slow_obst_startx, self.slow_obst_starty, slow_obstacle_image, self.slow_obst_scale):
+                    self.slow_active = True
+                    self.slow_timer = pygame.time.get_ticks()
+
+                # Incrementar a dificuldade a cada 20 segundos
+                elapsed_time = (pygame.time.get_ticks() - self.start_time) / 1000
+                if elapsed_time > 5:
+                    self.obst_speed *= 1.15
+                    self.start_time = pygame.time.get_ticks()
+
+                pygame.display.update()
         pygame.quit()
 
     def render(self, screen):
         renderer = Renderer(screen)
+        
+        # Pular o restante do loop até que o delay termine
         renderer.render_animation(self.animation, self.sprite_pos.x, self.sprite_pos.y)
         renderer.render_obstacle(self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale)
         renderer.render_pad( self.pad_startx, self.pad_starty, self.pad_scale)
@@ -314,7 +309,7 @@ class GameLogic:
         renderer.render_hud(self.distance, self.pads_collected, self.boost_active, self.boost_timer, white)
 
     def collision_check(self, x1, y1, car, x2, y2, obstacle, scale):
-        scaled = (int(obstacle.get_width() * scale)*.7, int(obstacle.get_height() * scale)*.7)
+        scaled = (int(obstacle.get_width() * scale * 0.7), int(obstacle.get_height() * scale * 0.7))
         mask1 = pygame.mask.from_surface(car).scale(scaled)
         mask2 = pygame.mask.from_surface(obstacle).scale(scaled)
         offset = (int(x2 - x1), int(y2 - y1))
