@@ -3,3 +3,4 @@
 
 # ignore cache logs
 **/__pycache__
+**/build

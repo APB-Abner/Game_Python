@@ -24,8 +24,8 @@ music_volume = 0.5
 ambient_volume = 0.5
 
 # Limites da pista
-track_left_limit = 100  # Posição X inicial da pista
-track_right_limit = screen_width - 100  # Posição X final da pista
+track_left_limit = 175  # Posição X inicial da pista
+track_right_limit = screen_width - 175  # Posição X final da pista
 
 # Definição de cores
 white = (255, 255, 255)

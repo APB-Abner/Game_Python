@@ -1,24 +1,20 @@
-import pygame
+import pygame 
+import asyncio                                                                                                                                                       
 from config import screen_width, screen_height, title
-from game_logic import GameLogic
 from menus import Menu
-
 
 def initialize_game():
     pygame.init()
     pygame.display.set_caption(title)
     return pygame.display.set_mode((screen_width, screen_height))
 
-def main_game_loop(screen):
+async def main_game_loop(screen):
     menu = Menu()
-    menu.main_menu(screen)
-    pygame.quit()
-    quit()
-
-
-def run_game():
+    await menu.main_menu(screen)
+    
+async def run_game():
     screen = initialize_game()
-    main_game_loop(screen)
+    await main_game_loop(screen)
 
 if __name__ == "__main__":
-    run_game()
+    asyncio.run(run_game())

@@ -1,4 +1,5 @@
 import pygame
+import asyncio
 from config import screen_width, screen_height, white, black, fullscreen, language, resolution
 from buttons import draw_button, toggle_fullscreen, change_language, draw_slider, adjust_slider_value, change_resolution
 from game_logic import GameLogic
@@ -23,7 +24,7 @@ class Menu:
         textrect.topleft = (x, y)
         surface.blit(textobj, textrect)
 
-    def main_menu(self, screen):
+    async def main_menu(self, screen):
         menu_active = True
         font = pygame.font.Font(None, 74)
         game_logic = GameLogic()
@@ -31,11 +32,10 @@ class Menu:
         start_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2, 200, 50)
         quit_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2 + 60, 200, 50)
 
-        def start_game():
+        async def start_game():
             nonlocal menu_active
             menu_active = False
-            game_logic.main_loop(screen)
-            
+            await game_logic.main_loop(screen)
 
         def quit_game():
             pygame.quit()
@@ -48,12 +48,11 @@ class Menu:
                     quit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Pressione Enter para iniciar o jogo
-                        menu_active = False
-                        game_logic.main_loop(screen)
+                        await start_game()
 
-            # screen.fill(white)
             screen.blit(back_menu, (-35, 0))
 
-            draw_button(screen, "Iniciar", font, white, start_button_rect, black, start_game)
+            draw_button(screen, "Iniciar", font, white, start_button_rect, black, lambda: asyncio.ensure_future(start_game()))
             draw_button(screen, "Sair", font, white, quit_button_rect, black, quit_game)
             pygame.display.update()
+            await asyncio.sleep(0)  # Permitir que outras coroutines rodem
