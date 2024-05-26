@@ -194,8 +194,7 @@ class GameLogic:
             self.last_obst_time = pygame.time.get_ticks()
             self.last_pad_time = pygame.time.get_ticks()
             self.last_slow_obst_time = pygame.time.get_ticks()
-
-    
+  
     async def main_loop(self, screen):
 
         while not self.game_exit:
@@ -218,8 +217,8 @@ class GameLogic:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                         self.car_x_change = 0
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_p:
-                        self.pause(screen)
+                    if event.key == pygame.K_p or event.key == pygame.K_ESCAPE:
+                        self.pause_menu(screen)
 
             screen.fill((0, 0, 0))
             self.car_x += self.car_x_change
@@ -320,9 +319,6 @@ class GameLogic:
             pygame.quit()
             quit()
 
-
-    
-
     def render(self, screen):
         renderer = Renderer(screen)
         
@@ -334,10 +330,10 @@ class GameLogic:
         renderer.render_hud(self.distance, self.pads_collected, self.boost_active, self.boost_timer, white)
 
     def collision_check(self, x1, y1, car, x2, y2, obstacle, scale):
-        scaled = (int(obstacle.get_width() * scale * 0.7), int(obstacle.get_height() * scale * 0.7))
+        scaled = (int(obstacle.get_width() * scale * 0.85), int(obstacle.get_height() * scale * 0.7))
         mask1 = pygame.mask.from_surface(car).scale(scaled)
         mask2 = pygame.mask.from_surface(obstacle).scale(scaled)
-        offset = (int(x2 - x1), int(y2 - y1))
+        offset = (int(x2 - x1*1.14), int(y2 - y1))
         overlap = mask1.overlap(mask2, offset)
         return overlap is not None
     
@@ -362,9 +358,14 @@ class GameLogic:
 
         while paused:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.type == pygame.QUIT or event.key == pygame.K_q:
+                        pygame.quit()
+                        quit()
+                    if event.key == pygame.K_o:
+                        self.options_menu(screen)
+                    if event.key == pygame.K_ESCAPE or event.key == pygame.K_c or event.key == pygame.K_p:
+                        paused = False
 
             screen.fill(white)
             self.draw_transparent_background(screen, 150)  # Background transparency

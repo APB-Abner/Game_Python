@@ -119,8 +119,7 @@ class Renderer:
         self.screen.blit(text, (10, 10))
         draw_boost_bar(pads_collected, boost_active, boost_timer)
 
-        # Adicione mais elementos de HUD conforme necessário
-
+        # Adicionar mais elementos de HUD conforme necessário
 
 def save_score(score):
     try:
