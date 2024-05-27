@@ -1,6 +1,9 @@
 # ignore tests
 *tests.py
+*.json
 
 # ignore cache logs
 **/__pycache__
 **/build
+**/arq build
+**/arq 

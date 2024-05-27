@@ -1,6 +1,5 @@
 import pygame
 import random
-import asyncio
 from config import screen_width, screen_height, track_left_limit, track_right_limit, white, black, resolution, fullscreen, language
 from buttons import draw_button, toggle_fullscreen, change_language, change_resolution
 from graphics import Renderer, display_text, Animation, Spritesheet, draw_slider, adjust_slider_value, save_score
@@ -77,7 +76,7 @@ class GameLogic:
 
         self.game_exit = False
 
-    async def crash(self, screen, distance):
+    def crash(self, screen, distance):
         save_score(distance)  # Salvar pontuação quando o jogador colidir
         clock = pygame.time.Clock()
 
@@ -89,7 +88,7 @@ class GameLogic:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         self.reset()
-                        await self.main_loop(screen)  # Reinicia o jogo
+                        self.main_loop(screen)  # Reinicia o jogo
                         return  # Sai da função para reiniciar o jogo
                     if event.key == pygame.K_q:
                         pygame.quit()
@@ -195,7 +194,7 @@ class GameLogic:
             self.last_pad_time = pygame.time.get_ticks()
             self.last_slow_obst_time = pygame.time.get_ticks()
   
-    async def main_loop(self, screen):
+    def main_loop(self, screen):
 
         while not self.game_exit:
             dt = self.clock.tick(60)
@@ -297,7 +296,7 @@ class GameLogic:
             if not pygame.time.get_ticks() - self.start_time_d < self.start_delay:
                 if self.collision_check(self.car_x, self.car_y, car_image, self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale):
                     print('Colisão!')
-                    await self.crash(screen, self.distance)
+                    self.crash(screen, self.distance)
 
                 if self.collision_check(self.car_x, self.car_y, car_image, self.pad_startx, self.pad_starty, pad_image, self.pad_scale):
                     self.pads_collected += 1
@@ -314,7 +313,6 @@ class GameLogic:
                 self.start_time = pygame.time.get_ticks()
 
             pygame.display.update()
-        await asyncio.sleep(0)
         if not self.game_exit:    
             pygame.quit()
             quit()

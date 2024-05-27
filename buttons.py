@@ -43,29 +43,30 @@ def draw_button(screen, text, font, color, rect, color_text, action=None):
     if rect.collidepoint(mouse) and click[0] == 1 and action:
         action()
 
-def toggle_fullscreen():
-    global fullscreen
-    fullscreen = not fullscreen
-    if fullscreen:
-        pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
-    else:
-        pygame.display.set_mode((screen_width, screen_height))
+class Options:
+    def toggle_fullscreen():
+        global fullscreen
+        fullscreen = not fullscreen
+        if fullscreen:
+            pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
+        else:
+            pygame.display.set_mode((screen_width, screen_height))
 
-def change_language():
-    global language
-    language = 'English' if language == 'Portuguese' else 'Portuguese'
+    def change_language():
+        global language
+        language = 'English' if language == 'Portuguese' else 'Portuguese'
 
-def change_resolution(new_resolution):
-    global resolution
-    resolution = new_resolution
-    pygame.display.set_mode(resolution)
+    def change_resolution(new_resolution):
+        global resolution
+        resolution = new_resolution
+        pygame.display.set_mode(resolution)
 
-def draw_slider(screen, x, y, w, h, value):
-    pygame.draw.rect(screen, gray, (x, y, w, h))
-    handle_pos = int(x + (w - 20) * value)
-    pygame.draw.rect(screen, black, (handle_pos, y, 20, h))
+    def draw_slider(screen, x, y, w, h, value):
+        pygame.draw.rect(screen, gray, (x, y, w, h))
+        handle_pos = int(x + (w - 20) * value)
+        pygame.draw.rect(screen, black, (handle_pos, y, 20, h))
 
-def adjust_slider_value(x, y, w, value):
-    mouse_x = pygame.mouse.get_pos()[0]
-    new_value = (mouse_x - x) / (w - 20)
-    return max(0, min(1, new_value))
+    def adjust_slider_value(x, y, w, value):
+        mouse_x = pygame.mouse.get_pos()[0]
+        new_value = (mouse_x - x) / (w - 20)
+        return max(0, min(1, new_value))
