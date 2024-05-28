@@ -1,7 +1,7 @@
 import pygame
 import random
 from config import screen_width, screen_height, track_left_limit, track_right_limit, white, black, resolution, fullscreen, language
-from buttons import draw_button, toggle_fullscreen, change_language, change_resolution
+from buttons import draw_button, Options
 from graphics import Renderer, display_text, Animation, Spritesheet, draw_slider, adjust_slider_value, save_score
 from sprite import car_image, obstacle_images, pad_image, car_height, car_width, pad_image, slow_obstacle_image
 from score_manager import save_score, get_high_score, display_scores
@@ -221,7 +221,7 @@ class GameLogic:
 
             screen.fill((0, 0, 0))
             self.car_x += self.car_x_change
-            self.render(screen)
+            self.render(screen, self.boost_active)
 
 
             if self.boost_active:
@@ -240,7 +240,6 @@ class GameLogic:
                     self.obst_speed = self.speed_slow
                     self.pad_speed = self.speed_slow
                     self.road_speed = self.speed_slow
-                    self.pads_collected += -1
                     self.speed_player_r = 2.5
                     self.speed_player_l = -2.5
                 else:
@@ -291,7 +290,7 @@ class GameLogic:
                 self.reset_slow_obstacle()
 
             self.animation.update(dt)
-            self.render(screen)
+            self.render(screen, self.boost_active)
 
             if not pygame.time.get_ticks() - self.start_time_d < self.start_delay:
                 if self.collision_check(self.car_x, self.car_y, car_image, self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale):
@@ -317,14 +316,14 @@ class GameLogic:
             pygame.quit()
             quit()
 
-    def render(self, screen):
+    def render(self, screen, boost_active):
         renderer = Renderer(screen)
         
         renderer.render_animation(self.animation, self.sprite_pos.x, self.sprite_pos.y)
         renderer.render_obstacle(self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale)
         renderer.render_pad( self.pad_startx, self.pad_starty, self.pad_scale)
         renderer.render_slow_obstacle( self.slow_obst_startx, self.slow_obst_starty, self.slow_obst_scale)
-        renderer.render_car(self.car_x, self.car_y)
+        renderer.render_car(self.car_x, self.car_y, boost_active)
         renderer.render_hud(self.distance, self.pads_collected, self.boost_active, self.boost_timer, white)
 
     def collision_check(self, x1, y1, car, x2, y2, obstacle, scale):
@@ -384,6 +383,7 @@ class GameLogic:
         sfx_volume = 0.5
         music_volume = 0.5
         ambient_volume = 0.5
+        options = Options()
 
         while self.options_open:
             for event in pygame.event.get():
@@ -409,17 +409,17 @@ class GameLogic:
 
             # Modos de Tela
             self.draw_text('Modo de Tela:', font, black, screen, 20, 100)
-            draw_button(screen, 'Fullscreen' if fullscreen else 'Windowed Fullscreen', font, black, pygame.Rect(250, 100, 200, 40), white, toggle_fullscreen)
+            draw_button(screen, 'Fullscreen' if fullscreen else 'Windowed Fullscreen', font, black, pygame.Rect(250, 100, 200, 40), white, options.toggle_fullscreen)
 
             # Resolução
             self.draw_text('Resolução:', font, black, screen, 20, 160)
             resolution_options = ['800x600', '1024x768', '1280x720']
             for i, res in enumerate(resolution_options):
-                draw_button(screen, res, font, black, pygame.Rect(250, 160 + i * 50, 200, 40), white, lambda r=res: change_resolution(tuple(map(int, r.split('x')))))
+                draw_button(screen, res, font, black, pygame.Rect(250, 160 + i * 50, 200, 40), white, lambda r=res: options.change_resolution(tuple(map(int, r.split('x')))))
 
             # Linguagem
             self.draw_text('Linguagem:', font, black, screen, 20, 320)
-            draw_button(screen, language, font, black, pygame.Rect(250, 320, 200, 40), white, change_language)
+            draw_button(screen, language, font, black, pygame.Rect(250, 320, 200, 40), white, options.change_language)
 
             # Volumes
             self.draw_text('Volume Mestre:', font, black, screen, 20, 380)

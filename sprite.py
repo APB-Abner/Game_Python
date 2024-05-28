@@ -3,6 +3,7 @@ import random
 
 # Carregar imagem do carro
 car_image = pygame.image.load('./img/car.png').convert_alpha()
+car_boost_image = pygame.image.load('./img/car_boost.png').convert_alpha()
 car_width = car_image.get_width()
 car_height = car_image.get_height()
 car_mask = pygame.mask.from_surface(car_image)

@@ -1,7 +1,7 @@
 import pygame
 import json
 from config import screen, gray, black, green, white
-from sprite import pad_image, slow_obstacle_image, car_image
+from sprite import pad_image, slow_obstacle_image, car_image, car_boost_image
 
 class Spritesheet:
     def __init__(self, filename):
@@ -35,9 +35,12 @@ class Animation:
         return self.frames[self.current_frame]
 
 # Funções relacionadas ao desenho dos elementos visuais do jogo
-def car(x, y):
+def car(x, y, boost_active):
     """Desenha o carro na tela."""
-    screen.blit(car_image, (x, y))
+    if not boost_active:
+        screen.blit(car_image, (x, y))    
+    else:
+        screen.blit(car_boost_image, (x, y))    
 
 def draw_boost_bar(pads_collected, boost_active, boost_timer):
     """Desenha a barra de boost na tela."""
@@ -95,8 +98,8 @@ class Renderer:
     def __init__(self, screen):
         self.screen = screen
 
-    def render_car(self, car_x, car_y):
-        car(car_x, car_y)
+    def render_car(self, car_x, car_y, boost_active):
+            car(car_x, car_y, boost_active)
 
     def render_obstacle(self, obst_startx, obst_starty, obstacle_image, scale):
         draw_with_perspective(obstacle_image, obst_startx, obst_starty, scale)

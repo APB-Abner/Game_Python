@@ -1,6 +1,6 @@
 import pygame
 from config import screen_width, screen_height, white, black, fullscreen, language, resolution
-from buttons import draw_button, toggle_fullscreen, change_language, draw_slider, adjust_slider_value, change_resolution
+from buttons import draw_button
 from game_logic import GameLogic
 from sprite import back_menu
 
