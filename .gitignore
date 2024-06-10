@@ -7,3 +7,11 @@
 **/build
 **/arq build
 **/arq 
+
+*.wav
+*.mp3
+*.pyc
+*.egg-info
+*-pygbag.???
+**/build
+**/dist
