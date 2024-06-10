@@ -5,7 +5,7 @@
 # ignore cache logs
 **/__pycache__
 **/build
-**/arq build
+**/test
 **/arq 
 
 *.wav
