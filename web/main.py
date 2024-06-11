@@ -178,12 +178,12 @@ async def game_loop():
         todos_sprites.draw(screen)
         pygame.display.flip()
         
-        clock.tick(60)
+        clock.tick(30)
     
     pygame.quit()
     await asyncio.sleep(0)
 
 if __name__ == "__main__":
     game_logic = GameLogic()
-    # game_logic.main_menu(screen)
+    game_logic.main_menu(screen)
     asyncio.run(game_loop())
