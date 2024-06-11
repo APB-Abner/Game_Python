@@ -36,12 +36,6 @@ car_image = car_image = pygame.image.load('./img/car.png')
 obstacle_options = ['./img/obstacle.png', './img/obstacle1.png', './img/obstacle2.png', './img/obstacle3.png']
 obstacle_images = [pygame.image.load(image).convert_alpha() for image in obstacle_options]
 
-
-
-
-
-
-
 # Classe do Jogador
 class Jogador(pygame.sprite.Sprite):
     def __init__(self):
@@ -72,7 +66,7 @@ class Obstaculo(pygame.sprite.Sprite):
         self.scale = (self.obst_starty - screen_height // 2) / (screen_height // 2) if self.obst_starty > screen_height // 2 else 0
         self.scaled_image = pygame.transform.scale(self.image, (int(self.image.get_width() * self.scale), int(self.image.get_height() * self.scale)))
         self.rect = self.scaled_image.get_rect()
-        self.rect.x = random.randint(0, screen_width - self.rect.width)
+        self.rect.x = (screen_width//2)-self.rect.width//2
         self.rect.y = -self.rect.height
 
         self.direction_x_obst = (self.obst_targetx - self.obst_startx) / (screen_height / self.obst_speed)
@@ -105,12 +99,13 @@ obstaculos = pygame.sprite.Group()
 jogador = Jogador()
 todos_sprites.add(jogador)
 # obstaculo = Obstaculo()
-
+'''
 # Instanciar obstáculos
 for _ in range(random.choice(range(5))):
-    obstaculo = Obstaculo()
-    todos_sprites.add(obstaculo)
-    obstaculos.add(obstaculo)
+'''
+obstaculo = Obstaculo()
+todos_sprites.add(obstaculo)
+obstaculos.add(obstaculo)
 
 # Loop principal do jogo
 rodando = True
@@ -132,7 +127,6 @@ while rodando:
         rodando = False
 
     # Desenhar
-    
     screen.fill(black)
     todos_sprites.draw(screen)
 
