@@ -1,5 +1,6 @@
 import pygame
 import random
+import asyncio
 
 # Inicializa o Pygame
 pygame.init()
@@ -9,30 +10,21 @@ screen_width = 800
 screen_height = 600
 resolution = (screen_width, screen_height)
 screen = pygame.display.set_mode(resolution)
-title = "Corrida de Fórmula E"
-fullscreen = False
-speed_basic = 1.5
-speed_p = 5
-track_left_limit = 175
-track_right_limit = screen_width - 175 
-scale = 0
+pygame.display.set_caption("Corrida de Fórmula E")
 
-# Cores
+# Definindo cores
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
-gray = (200, 200, 200)
-light_gray = (220, 220, 220)
-black_alpha = pygame.Color(0, 0, 0, 15)
 
-# Configurações da screen
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Jogo de Corrida Interminável")
+# Limites da pista
+track_left_limit = 175
+track_right_limit = screen_width - 175
 
 # Carregar imagens
-car_image = car_image = pygame.image.load('./img/car.png')
+car_image = pygame.image.load('./img/car.png')
 obstacle_options = ['./img/obstacle.png', './img/obstacle1.png', './img/obstacle2.png', './img/obstacle3.png']
 obstacle_images = [pygame.image.load(image).convert_alpha() for image in obstacle_options]
 
@@ -47,101 +39,151 @@ class Jogador(pygame.sprite.Sprite):
     def update(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and self.rect.left > track_left_limit:
-            self.rect.x -= speed_p
+            self.rect.x -= 5
         if keys[pygame.K_RIGHT] and self.rect.right < track_right_limit:
-            self.rect.x += speed_p
+            self.rect.x += 5
 
 # Classe do Obstáculo
 class Obstaculo(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.obst_startx = screen_width // 2
-        self.obst_starty = screen_height // 2
-        self.obst_targetx = random.randrange(track_left_limit, track_right_limit)
-        self.obst_speed = speed_basic
-        self.obst_targety = screen_height
-
         self.image = random.choice(obstacle_images)
-        self.mask = pygame.mask.from_surface(self.image)
-        self.scale = (self.obst_starty - screen_height // 2) / (screen_height // 2) if self.obst_starty > screen_height // 2 else 0
-        self.scaled_image = pygame.transform.scale(self.image, (int(self.image.get_width() * self.scale), int(self.image.get_height() * self.scale)))
-        self.rect = self.scaled_image.get_rect()
-        self.rect.x = (screen_width//2)-self.rect.width//2
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(track_left_limit, track_right_limit - self.rect.width)
         self.rect.y = -self.rect.height
-
-        self.direction_x_obst = (self.obst_targetx - self.obst_startx) / (screen_height / self.obst_speed)
-        self.direction_y_obst = self.obst_speed
-
+        self.speed = 1.5
+    
     def update(self):
-        # Atualiza a escala dinamicamente baseado na posição
-        self.scale = (self.obst_starty - screen_height // 2) / (screen_height // 2) if self.obst_starty > screen_height // 2 else 0
-        self.scaled_image = pygame.transform.scale(self.image, (int(self.image.get_width() * self.scale), int(self.image.get_height() * self.scale)))
-        self.rect = self.scaled_image.get_rect(center=self.rect.center)
-
-        # Atualiza a posição
-        self.rect.x += self.direction_x_obst
-        self.rect.y += self.direction_y_obst
-
-        # Reinicializa o obstáculo se ele sair da tela
+        self.rect.y += self.speed
         if self.rect.top > screen_height:
-            self.obst_startx = screen_width // 2
-            self.rect.x = random.randint(0, screen_width - self.rect.width)
+            self.rect.x = random.randint(track_left_limit, track_right_limit - self.rect.width)
             self.rect.y = -self.rect.height
-            self.obst_targetx = random.randrange(track_left_limit, track_right_limit)
-            self.direction_x_obst = (self.obst_targetx - self.obst_startx) / (screen_height / self.obst_speed)
-            self.scale = (self.obst_starty - screen_height // 2) / (screen_height // 2) if self.obst_starty > screen_height // 2 else 0
+            self.speed *= 1.05  # Incrementa a velocidade com o tempo
 
-# Grupos de Sprites
-todos_sprites = pygame.sprite.Group()
-obstaculos = pygame.sprite.Group()
+# Funções adicionais do código original
+class GameLogic:
+    def reset_slow_obstacle(self):
+        self.slow_obst_startx = screen_width // 2
+        self.slow_obst_starty = screen_height // 2
+        self.slow_obst_scale = 0
+        self.slow_obst_speed = self.speed_basic
+        self.slow_obst_targetx = random.randrange(track_left_limit, track_right_limit)
+        self.slow_obst_delay = random.randint(5000, 10000)
 
-# Instância do jogador
-jogador = Jogador()
-todos_sprites.add(jogador)
-# obstaculo = Obstaculo()
-'''
-# Instanciar obstáculos
-for _ in range(random.choice(range(5))):
-'''
-obstaculo = Obstaculo()
-todos_sprites.add(obstaculo)
-obstaculos.add(obstaculo)
+    def reset(self):
+        self.car_x = (screen_width * 0.5)
+        self.car_y = (screen_height * 0.85)
+        self.car_x_change = 0
+        self.speed_player_r = 5
+        self.speed_player_l = -5
+        self.speed_basic = 1.5
+        self.speed_boost = self.speed_basic * 2
+        self.speed_slow = self.speed_basic / 2
+        
+        self.obstacle_image = random.choice(obstacle_images)
+        self.obstacle_mask = pygame.mask.from_surface(self.obstacle_image)
+        self.obst_startx = screen_width // 2
+        self.pad_startx = screen_width // 2
+        self.slow_obst_startx = screen_width // 2
+        self.obst_starty = screen_height - self.rect.height // 2
+        self.pad_starty = screen_height - self.rect.height // 2
+        self.slow_obst_starty = screen_height - self.rect.height // 2
+        
+        self.obst_speed = self.speed_basic
+        self.pad_speed = self.speed_basic
+        self.slow_obst_speed = self.speed_basic
+        self.obst_scale = 0
+        self.pad_scale = 0
+        self.slow_obst_scale = 0
+
+        self.obst_targetx = random.randrange(track_left_limit, track_right_limit)
+        self.pad_targetx = random.randrange(track_left_limit, track_right_limit)
+        self.slow_obst_targetx = random.randrange(track_left_limit, track_right_limit)
+        self.obst_targety = screen_height
+        self.pad_targety = screen_height
+
+        self.ambient_volume = 1.0
+        self.options_open = False
+
+    def draw_transparent_background(self, screen, alpha):
+        overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+        overlay.fill((255, 255, 255, alpha))  # Alpha value (0-255)
+        screen.blit(overlay, (0, 0))
+
+    def draw_text(self, text, font, color, surface, x, y):
+        textobj = font.render(text, True, color)
+        textrect = textobj.get_rect()
+        textrect.topleft = (x, y)
+        surface.blit(textobj, textrect)
+
+    def main_menu(self, screen):
+        menu_active = True
+        font = pygame.font.Font(None, 74)
+        
+        start_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2, 200, 50)
+        quit_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2 + 60, 200, 50)
+
+        def start_game():
+            nonlocal menu_active
+            menu_active = False
+            game_logic = GameLogic()
+            game_logic.main_loop(screen)
+
+        def quit_game():
+            pygame.quit()
+            quit()
+
+        while menu_active:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:  # Pressione Enter para iniciar o jogo
+                        start_game()
+
+            screen.fill(black)
+            self.draw_text("Iniciar", font, white, screen, screen_width // 2 - 50, screen_height // 2 - 25)
+            self.draw_text("Sair", font, white, screen, screen_width // 2 - 50, screen_height // 2 + 35)
+            pygame.display.update()
 
 # Loop principal do jogo
-rodando = True
-clock = pygame.time.Clock()
+async def game_loop():
+    jogador = Jogador()
+    obstaculos = pygame.sprite.Group()
+    
+    todos_sprites = pygame.sprite.Group()
+    todos_sprites.add(jogador)
+    
+    for _ in range(5):  # Adicionar alguns obstáculos
+        obstaculo = Obstaculo()
+        todos_sprites.add(obstaculo)
+        obstaculos.add(obstaculo)
+    
+    rodando = True
+    clock = pygame.time.Clock()
+    
+    while rodando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
 
-while rodando:
-    start_time_d = pygame.time.get_ticks()
-    start_time = start_time_d
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
+        todos_sprites.update()
+
+        if pygame.sprite.spritecollide(jogador, obstaculos, False, pygame.sprite.collide_mask):
+            print("Game Over")
             rodando = False
 
-    # Atualizar
-    todos_sprites.update()
-
-    # Verificar colisões
-    if pygame.sprite.spritecollide(jogador, obstaculos, False, pygame.sprite.collide_mask):
-        print("Game Over")
-        rodando = False
-
-    # Desenhar
-    screen.fill(black)
-    todos_sprites.draw(screen)
-
-    # Atualizar display
-    pygame.display.flip()
+        screen.fill(black)
+        todos_sprites.draw(screen)
+        pygame.display.flip()
+        
+        clock.tick(60)
     
-    # Incrementar a dificuldade a cada 20 segundos
-    elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
-    if elapsed_time > 5:
-        speed_basic *= 1.05
-        obstaculos.obst_speed *= 1.15
-        start_time = pygame.time.get_ticks()
+    pygame.quit()
+    await asyncio.sleep(0)
 
-    # Controlar FPS
-    clock.tick(60)
-
-menu = True
-pygame.quit()
+if __name__ == "__main__":
+    game_logic = GameLogic()
+    # game_logic.main_menu(screen)
+    asyncio.run(game_loop())
