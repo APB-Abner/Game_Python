@@ -6,15 +6,26 @@ from graphics import Renderer, display_text, Animation, Spritesheet, draw_slider
 from sprite import car_image, obstacle_images, pad_image, car_height, car_width, pad_image, slow_obstacle_image
 from score_manager import save_score, get_high_score, display_scores
 
-
+class Jogador(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = car_image
+        self.rect = self.image.get_rect()
+        self.rect.center = (screen_width // 2, screen_height - 100)
+    
+    def update(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and self.rect.left > track_left_limit:
+            self.rect.x -= 5
+        if keys[pygame.K_RIGHT] and self.rect.right < track_right_limit:
+            self.rect.x += 5
 class GameLogic:
     def __init__(self):
-        self.car_x = (screen_width * 0.5)
-        self.car_y = (screen_height * 0.85)
-        self.car_x_change = 0
+        self.jogador = Jogador()
         self.speed_player_r = 5
         self.speed_player_l = -5
-
+        self.todos_sprites = pygame.sprite.Group()
+        self.todos_sprites.add(self.jogador)
         self.speed_basic = 1.5
         self.speed_boost = self.speed_basic * 2
         self.speed_slow = self.speed_basic / 2
@@ -203,24 +214,16 @@ class GameLogic:
                     self.game_exit = True
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        self.car_x_change = self.speed_player_l
-                    elif event.key == pygame.K_RIGHT:
-                        self.car_x_change = self.speed_player_r
-                    elif event.key == pygame.K_SPACE and self.pads_collected >= 3:
+                    if event.key == pygame.K_SPACE and self.pads_collected >= 3:
                         self.boost_active = True
                         self.boost_timer = pygame.time.get_ticks()
                         self.pads_collected = 0
 
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                        self.car_x_change = 0
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p or event.key == pygame.K_ESCAPE:
                         self.pause_menu(screen)
 
             screen.fill((0, 0, 0))
-            self.car_x += self.car_x_change
             self.render(screen, self.boost_active)
 
 
@@ -250,10 +253,6 @@ class GameLogic:
                     self.speed_player_r = 5
                     self.speed_player_l = -5
 
-            if self.car_x > track_right_limit - car_width:
-                self.car_x = track_right_limit - car_width
-            if self.car_x < track_left_limit:
-                self.car_x = track_left_limit
 
             # Calcular a direção do movimento
             self.direction_x_obst = (self.obst_targetx - self.obst_startx) / (screen_height / self.obst_speed)
@@ -291,17 +290,18 @@ class GameLogic:
 
             self.animation.update(dt)
             self.render(screen, self.boost_active)
-
+            self.todos_sprites.update()
+            self.todos_sprites.draw(screen)
             if not pygame.time.get_ticks() - self.start_time_d < self.start_delay:
-                if self.collision_check(self.car_x, self.car_y, car_image, self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale):
-                    print('Colisão!')
+                # if self.collision_check(self.car_x, self.car_y, car_image, self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale):
+                if pygame.sprite.collide_mask(self.jogador, self.obstacle_image):
                     self.crash(screen, self.distance)
 
-                if self.collision_check(self.car_x, self.car_y, car_image, self.pad_startx, self.pad_starty, pad_image, self.pad_scale):
+                if pygame.sprite.collide_mask(self.jogador, pad_image):
                     self.pads_collected += 1
                     self.pad_starty = screen_height + car_height
 
-                if self.collision_check(self.car_x, self.car_y, car_image, self.slow_obst_startx, self.slow_obst_starty, slow_obstacle_image, self.slow_obst_scale):
+                if pygame.sprite.collide_mask(self.jogador, slow_obstacle_image):
                     self.slow_active = True
                     self.slow_timer = pygame.time.get_ticks()
 
@@ -323,7 +323,6 @@ class GameLogic:
         renderer.render_obstacle(self.obst_startx, self.obst_starty, self.obstacle_image, self.obst_scale)
         renderer.render_pad( self.pad_startx, self.pad_starty, self.pad_scale)
         renderer.render_slow_obstacle( self.slow_obst_startx, self.slow_obst_starty, self.slow_obst_scale)
-        renderer.render_car(self.car_x, self.car_y, boost_active)
         renderer.render_hud(self.distance, self.pads_collected, self.boost_active, self.boost_timer, white)
 
     def collision_check(self, x1, y1, car, x2, y2, obstacle, scale):

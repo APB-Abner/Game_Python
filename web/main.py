@@ -171,7 +171,6 @@ async def game_loop():
         todos_sprites.update()
 
         if pygame.sprite.spritecollide(jogador, obstaculos, False, pygame.sprite.collide_mask):
-            print("Game Over")
             rodando = False
 
         screen.fill(black)
