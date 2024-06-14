@@ -33,8 +33,9 @@ let collectedBoosts = 0;
 
 function preload() {
     this.load.spritesheet('background', 'img/sprit_road-0.png', {
-        frameWidth: 800,
-        frameHeight: 600
+        frameWidth: 600,
+        frameHeight: 700
+        
     });
     this.load.image('player', 'img/car.png'); // Substitua pelo caminho da imagem do carro
     this.load.image('slow_obstacle', 'img/slow_pad.png'); // Substitua pelo caminho da imagem do obstáculo que lentifica
@@ -51,18 +52,18 @@ function create() {
     // Adicionando a animação de fundo
     this.anims.create({
         key: 'background_anim',
-        frames: this.anims.generateFrameNumbers('background', { start: 0, end: 63 }),
+        frames: this.anims.generateFrameNumbers('background', { start: 1, end: 64 }),
         frameRate: 10,
         repeat: -1
     });
 
-    this.background = this.add.sprite(300, 100, 'background');
+    this.background = this.add.sprite(400, 450, 'background');
     this.background.play('background_anim');
 
     // Adicionando HUD para pontuação
     scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
 
-    player = this.physics.add.sprite(300, 600, 'player');
+    player = this.physics.add.sprite(300, 100, 'player');
     player.setCollideWorldBounds(true);
   
     slowObstacles = this.physics.add.group({
