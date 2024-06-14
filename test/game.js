@@ -53,7 +53,7 @@ function create() {
     this.anims.create({
         key: 'background_anim',
         frames: this.anims.generateFrameNumbers('background', { start: 1, end: 64 }),
-        frameRate: 10,
+        frameRate: 60,
         repeat: -1
     });
 
