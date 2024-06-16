@@ -87,9 +87,22 @@ Responsável por desenhar elementos na tela, incluindo o carro, obstáculos, pad
 
 Gerencia a animação da pista, criando um efeito de rolagem infinita.
 
+#### `Menu`
+
+A classe `Menu` gerencia a interface do menu principal do jogo, incluindo as opções de iniciar o jogo e sair.
+
+- **Métodos:**
+  - **`__init__()`**: Inicializa as variáveis de volume e estado das opções.
+
+  - **`draw_transparent_background(screen, alpha)`**: Desenha um fundo transparente na tela do menu.
+
+  - **`draw_text(text, font, color, surface, x, y)`**: Desenha texto na tela do menu.
+
+  - **`main_menu(screen, name_player)`**: Gerencia o loop do menu principal, exibindo botões e respondendo a eventos do usuário.
+
 ### Funções Auxiliares
 
-Além da `GameLogic`, o código utiliza várias funções e classes de módulos importados para desenhar botões, gerenciar gráficos, e gerenciar pontuações.
+Além da `GameLogic` e `Menu`, o código utiliza várias funções e classes de módulos importados para desenhar botões, gerenciar gráficos, e gerenciar pontuações.
 
 - **Módulo `buttons`**: Contém funções para desenhar botões e gerenciar as opções do jogo.
 
