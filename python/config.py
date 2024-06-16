@@ -15,7 +15,7 @@ title = "Corrida de Fórmula E"
 fullscreen = False
 
 # Idioma do jogo
-language = 'English'
+language = 'Portugueses'
 
 # Configurações de áudio
 master_volume = 0.5

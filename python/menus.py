@@ -23,7 +23,7 @@ class Menu:
         textrect.topleft = (x, y)
         surface.blit(textobj, textrect)
 
-    def main_menu(self, screen, name_player):
+    def main_menu(self, screen):
         menu_active = True
         font = pygame.font.Font(None, 74)
         game_logic = GameLogic()
