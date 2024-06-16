@@ -29,7 +29,8 @@ let score = 0;
 let scoreText;
 let initialObstacleVelocity = 3; // Velocidade inicial dos obstáculos
 let velocityIncrease = 1.15
-let collectedBoosts = 0;
+let boostBar;
+let padsCollected = 0;
 
 function preload() {
     this.load.spritesheet('background', 'img/sprit_road-0.png', {
@@ -53,7 +54,7 @@ function create() {
     this.anims.create({
         key: 'background_anim',
         frames: this.anims.generateFrameNumbers('background', { start: 1, end: 64 }),
-        frameRate: 60,
+        frameRate: 10,
         repeat: -1
     });
 
@@ -63,19 +64,23 @@ function create() {
     // Adicionando HUD para pontuação
     scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
 
-    player = this.physics.add.sprite(300, 100, 'player');
+    // Adicionando a barra de boost
+    boostBar = this.add.graphics();
+    updateBoostBar();
+
+    player = this.physics.add.sprite(400, 500, 'player');
     player.setCollideWorldBounds(true);
-  
+
     slowObstacles = this.physics.add.group({
         key: 'slow_obstacle',
-        repeat: 2, // Reduzindo o número de obstáculos
-        setXY: { x: 300, y: -100 }, // Começando no centro do topo
+        repeat: 2,
+        setXY: { x: 300, y: -100 }
     });
-    
+
     boosts = this.physics.add.group({
         key: 'boost',
         repeat: 2,
-        setXY: { x: 300, y: -100 },
+        setXY: { x: 300, y: -100 }
     });
 
     gameOverObstacles = this.physics.add.group();
@@ -86,16 +91,14 @@ function create() {
     this.physics.add.overlap(player, boosts, collectBoost, null, this);
     this.physics.add.overlap(player, gameOverObstacles, hitGameOverObstacle, null, this);
 
-    // Diminuindo a velocidade inicial
-slowObstacles.children.iterate(function (child) {
-    child.setVelocityY(3); // Ajuste a velocidade conforme necessário
-});
+    slowObstacles.children.iterate(function (child) {
+        child.setVelocityY(3);
+    });
 
-boosts.children.iterate(function (child) {
-    child.setVelocityY(5); // Ajuste a velocidade conforme necessário
-});
+    boosts.children.iterate(function (child) {
+        child.setVelocityY(5);
+    });
 
-    // Criar novos obstáculos de game over em intervalos regulares
     this.time.addEvent({
         delay: 2000,
         callback: createGameOverObstacle,
@@ -103,33 +106,39 @@ boosts.children.iterate(function (child) {
         loop: true
     });
 
-        // Temporizador para aumentar a velocidade a cada 20 segundos
-        this.time.addEvent({
-            delay: 20000, // 20 segundos
-            callback: increaseVelocity,
-            callbackScope: this,
-            loop: true
-        });
+    this.time.addEvent({
+        delay: 20000,
+        callback: increaseVelocity,
+        callbackScope: this,
+        loop: true
+    });
+
+    this.input.keyboard.on('keydown_ESC', function (event) {
+        pauseMenu(this);
+    }, this);
+}
+
+function updateBoostBar() {
+    boostBar.clear();
+    boostBar.fillStyle(0x000000);
+    boostBar.fillRect(10, 100, 200, 20);
+
+    const progress = Phaser.Math.Clamp(padsCollected / 3, 0, 1);
+    boostBar.fillStyle(0x00ff00);
+    boostBar.fillRect(10, 100, 200 * progress, 20);
+
+    boostBar.lineStyle(2, 0xffffff);
+    boostBar.strokeRect(10, 100, 200, 20);
 }
 
 function update() {
     if (cursors.left.isDown) {
-        if (boostActive) {
-            player.setVelocityX(-400); // Velocidade aumentada quando o boost está ativo
-        } else {
-            player.setVelocityX(-160); // Velocidade normal
-        }
+        player.setVelocityX(boostActive ? -400 : -160);
     } else if (cursors.right.isDown) {
-        if (boostActive) {
-            player.setVelocityX(400); // Velocidade aumentada quando o boost está ativo
-        } else {
-            player.setVelocityX(160); // Velocidade normal
-        }
+        player.setVelocityX(boostActive ? 400 : 160);
     } else {
-        player.setVelocityX(0); // Quando nenhuma tecla de movimento é pressionada
+        player.setVelocityX(0);
     }
-
-
 
     Phaser.Actions.IncY(slowObstacles.getChildren(), 5);
     Phaser.Actions.IncY(boosts.getChildren(), 7);
@@ -140,63 +149,70 @@ function update() {
             child.y = 0;
             child.x = Phaser.Math.Between(50, 550);
         }
-        child.setScale(0.1); // Ajuste a escala inicial conforme necessário
-        child.setVelocityY(3); // Ajuste a velocidade conforme necessário
-        child.setDisplaySize(100, 100); // Ajuste o tamanho inicial do sprite
-        // Lógica para aumentar gradualmente o tamanho
-        this.tweens.add({
-            targets: child,
-            scaleX: 1, // Escala final
-            scaleY: 1, // Escala final
-            duration: 1000, // Tempo para alcançar a escala final
-        });
-    }, this);
+    });
 
     boosts.children.iterate(function (child) {
         if (child.y > 700) {
             child.y = 0;
             child.x = Phaser.Math.Between(50, 550);
         }
-        child.setScale(0.1); // Ajuste a escala inicial conforme necessário
-        child.setVelocityY(3); // Ajuste a velocidade conforme necessário
-        child.setDisplaySize(100, 100); // Ajuste o tamanho inicial do sprite
-        // Lógica para aumentar gradualmente o tamanho
-        this.tweens.add({
-            targets: child,
-            scaleX: 1, // Escala final
-            scaleY: 1, // Escala final
-            duration: 1000, // Tempo para alcançar a escala final
-        });
-    }, this);
+    });
 
     gameOverObstacles.children.iterate(function (child) {
         if (child.y > 700) {
-            child.y = 0;
-            child.x = Phaser.Math.Between(50, 550);
+            child.destroy(); // Destroi o obstáculo quando ele sai da tela
         }
-        child.setScale(0.1); // Ajuste a escala inicial conforme necessário
-        child.setVelocityY(3); // Ajuste a velocidade conforme necessário
-        child.setDisplaySize(100, 100); // Ajuste o tamanho inicial do sprite
-        // Lógica para aumentar gradualmente o tamanho
-        this.tweens.add({
-            targets: child,
-            scaleX: 1, // Escala final
-            scaleY: 1, // Escala final
-            duration: 1000, // Tempo para alcançar a escala final
-        });
-    }, this);
+    });
 
     // Atualizando a pontuação
     score += 1;
     scoreText.setText('Score: ' + score);
 }
 
+function collectedBoosts(player, boost) {
+    boost.disableBody(true, true);
+    padsCollected += 1;
+    updateBoostBar();
+    console.log("Pegou um boost! Boosts coletados: " + padsCollected);
+
+    if (padsCollected >= 3 && !boostActive) {
+        boostActive = true;
+        boostTimer = this.time.now;
+        padsCollected = 0; // Reinicia a contagem de boosts coletados
+    }
+}
+
 function hitSlowObstacle(player, obstacle) {
     obstacle.disableBody(true, true);
     console.log("Colidiu com obstáculo de lentificação! Diminuindo velocidade.");
-    player.setVelocityY(100);
+    player.setVelocityX(player.body.velocity.x / 2); // Diminui a velocidade na horizontal
     this.time.delayedCall(2000, () => {
-        player.setVelocityY(0);
+        player.setVelocityX(0); // Para o movimento após o efeito de lentificação
+    });
+}
+
+function createGameOverObstacle() {
+    if (gameOverObstacles.countActive(true) < 5) {
+        const xPosition = Phaser.Math.Between(50, 550);
+        const obstacleTypes = ['game_over_obstacle1', 'game_over_obstacle2', 'game_over_obstacle3', 'game_over_obstacle4'];
+        const selectedObstacle = Phaser.Utils.Array.GetRandom(obstacleTypes);
+
+        const obstacle = gameOverObstacles.create(xPosition, 0, selectedObstacle);
+        obstacle.setVelocityY(3);
+    }
+}
+
+function increaseVelocity() {
+    slowObstacles.children.iterate(function (child) {
+        child.setVelocityY(child.body.velocity.y * 1.15);
+    });
+
+    boosts.children.iterate(function (child) {
+        child.setVelocityY(child.body.velocity.y * 1.15);
+    });
+
+    gameOverObstacles.children.iterate(function (child) {
+        child.setVelocityY(child.body.velocity.y * 1.15);
     });
 }
 
@@ -219,31 +235,41 @@ function collectBoost(player, boost) {
     }
 }
 
-function createGameOverObstacle() {
-    if (gameOverObstacles.countActive(true) < 3) {
-        const xPosition = Phaser.Math.Between(50, 550);
-        const obstacleTypes = ['game_over_obstacle1', 'game_over_obstacle2', 'game_over_obstacle3', 'game_over_obstacle4'];
-        const selectedObstacle = Phaser.Utils.Array.GetRandom(obstacleTypes);
-
-        const obstacle = gameOverObstacles.create(xPosition, -100, selectedObstacle);
-        obstacle.setVelocityY(200);
-    }
+function displayText(scene, text, fontSize, color, x, y) {
+    const style = { fontSize: fontSize + 'px', fill: color };
+    scene.add.text(x, y, text, style);
 }
 
-function increaseVelocity() {
-    // Aumentar a velocidade de todos os grupos de obstáculos
-    slowObstacles.children.iterate(function (child) {
-        child.setVelocityY(child.body.velocity.y * velocityIncrease);
+function drawButton(scene, text, x, y, width, height, color, textColor, action) {
+    const button = scene.add.rectangle(x, y, width, height, color).setInteractive();
+    const buttonText = scene.add.text(x, y, text, { fontSize: '32px', fill: textColor }).setOrigin(0.5);
+
+    button.on('pointerdown', action);
+    button.on('pointerover', () => {
+        button.setFillStyle(0x888888); // Cor quando o mouse passa por cima
+    });
+    button.on('pointerout', () => {
+        button.setFillStyle(color); // Cor normal
     });
 
-    boosts.children.iterate(function (child) {
-        child.setVelocityY(child.body.velocity.y * velocityIncrease);
+    return button;
+}
+
+function pauseMenu(scene) {
+    scene.physics.pause(); // Pausa a física do jogo
+
+    const resumeButton = drawButton(scene, 'Continuar', scene.cameras.main.centerX, scene.cameras.main.centerY - 60, 250, 50, 0x000000, '#ffffff', () => {
+        scene.physics.resume();
+        resumeButton.destroy();
+        optionsButton.destroy();
+        quitButton.destroy();
     });
 
-    gameOverObstacles.children.iterate(function (child) {
-        child.setVelocityY(child.body.velocity.y * velocityIncrease);
+    const optionsButton = drawButton(scene, 'Opções', scene.cameras.main.centerX, scene.cameras.main.centerY, 250, 50, 0x000000, '#ffffff', () => {
+        // Implementar a lógica do menu de opções
     });
 
-    // Ajustar a velocidade inicial para os próximos obstáculos gerados
-    initialObstacleVelocity *= velocityIncrease;
+    const quitButton = drawButton(scene, 'Sair', scene.cameras.main.centerX, scene.cameras.main.centerY + 60, 250, 50, 0x000000, '#ffffff', () => {
+        scene.game.destroy(true); // Fecha o jogo
+    });
 }

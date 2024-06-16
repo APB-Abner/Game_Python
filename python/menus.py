@@ -23,11 +23,12 @@ class Menu:
         textrect.topleft = (x, y)
         surface.blit(textobj, textrect)
 
-    def main_menu(self, screen):
+    def main_menu(self, screen, name_player):
         menu_active = True
         font = pygame.font.Font(None, 74)
         game_logic = GameLogic()
 
+        nameplayer = pygame.Rect(0,0,200,50)
         start_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2, 200, 50)
         quit_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2 + 60, 200, 50)
 
@@ -50,7 +51,8 @@ class Menu:
                         start_game()
 
             screen.blit(back_menu, (-35, 0))
-
+            
+            draw_button(screen, "Olá{name_player}", font, white, nameplayer, black, None)
             draw_button(screen, "Iniciar", font, white, start_button_rect, black, start_game())
             draw_button(screen, "Sair", font, white, quit_button_rect, black, quit_game)
             pygame.display.update()
