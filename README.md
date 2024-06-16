@@ -1,6 +1,24 @@
 # Corrida de Fórmula E - Jogo em Python
 
-Este projeto é um jogo de corrida estilo Subway Surfers em desenvolvimento usando Python com a biblioteca Pygame. O jogador controla um carro de Fórmula E que deve evitar obstáculos e coletar pads para ativar um boost de velocidade.
+Este é um jogo de corrida desenvolvido em Python usando a biblioteca Pygame. O jogador controla um carro que deve evitar obstáculos, coletar pads de aceleração e lidar com obstáculos que reduzem a velocidade.
+
+## Índice
+
+- [Funcionalidades](#funcionalidades)
+- [Requisitos](#requisitos)
+- [Estrutura do Código](#estrutura-do-código)
+  - [Classes](#classes)
+  - [Funções Auxiliares](#funções-auxiliares)
+  - [Arquivos](#arquivos)
+- [Instalação](#instalação)
+- [Uso](#uso)
+- [Como Jogar](#como-jogar)
+  - [Controles](#controles)
+  - [Menus](#menus)
+    - [Menu de Pausa](#menu-de-pausa)
+    - [Menu de Opções](#menu-de-opções)
+- [Contribuições](#contribuições)
+- [Licença](#licença)
 
 ## Funcionalidades
 
@@ -14,40 +32,20 @@ Este projeto é um jogo de corrida estilo Subway Surfers em desenvolvimento usan
 - **Menu de Pausa:** O jogo pode ser pausado, e o jogador pode ver suas pontuações durante a pausa.
 - **Início com Atraso:** O jogo começa com um atraso de 3 segundos para que os obstáculos não apareçam imediatamente.
 
-## Como Jogar
+## Requisitos
 
-1. **Movimentação:**
-   - Use a tecla `←` (seta esquerda) para mover o carro para a esquerda.
-   - Use a tecla `→` (seta direita) para mover o carro para a direita.
-
-2. **Coletar Pads:**
-   - Colete pads que aparecem na pista para acumular boosts.
-
-3. **Ativar Boost:**
-   - Pressione a barra de espaço (`SPACE`) para ativar o boost de velocidade após coletar três pads.
-
-4. **Pausar Jogo:**
-   - Pressione a tecla `P` para pausar o jogo.
-
-5. **Reiniciar após Colisão:**
-   - Pressione `R` para reiniciar o jogo após uma colisão.
-   - Pressione `Q` para sair do jogo após uma colisão.
+- Python 3.x
+- Pygame
 
 ## Estrutura do Código
 
 O código está organizado em vários arquivos para facilitar a manutenção e a legibilidade. Aqui está uma visão geral dos principais arquivos e classes:
 
-### Arquivos
-
-- `game_logic.py`: Contém a lógica principal do jogo, incluindo o loop do jogo, controle do carro, movimentação de obstáculos, detecção de colisões e gerenciamento de pontuações.
-- `config.py`: Contém constantes e configurações globais, como dimensões da tela, limites da pista e cores.
-- `graphics.py`: Contém classes e funções relacionadas ao renderização, animações e exibição de textos.
-- `sprite.py`: Contém a inicialização de sprites e máscaras para colisão.
-
 ### Classes
 
 #### `GameLogic`
-Responsável por gerenciar o estado do jogo, detectar colisões, atualizar a posição do carro e dos obstáculos, e lidar com eventos do jogador.
+
+A classe `GameLogic` contém a lógica principal do jogo. Ela gerencia a posição do carro, a posição e movimento dos obstáculos e pads, a velocidade do jogo, e as colisões. Também gerencia o menu de pausa e opções.
 
 - **Atributos:**
   - `car_x`, `car_y`: Posição do carro.
@@ -57,49 +55,137 @@ Responsável por gerenciar o estado do jogo, detectar colisões, atualizar a pos
   - `distance`: Distância percorrida pelo carro.
 
 - **Métodos:**
-  - `__init__()`: Inicializa o estado do jogo.
-  - `main_loop()`: Loop principal do jogo.
-  - `reset()`: Reseta o estado do jogo após uma colisão.
-  - `crash()`: Exibe a tela de "Game Over".
-  - `render()`: Renderiza os elementos na tela.
-  - `collision_check()`: Verifica colisões entre o carro e os obstáculos/pads.
+  - **`__init__()`**: Inicializa as variáveis do jogo, como a posição do carro, velocidade, posições e velocidades dos obstáculos e pads, e inicializa a animação e spritesheet.
+
+  - **`main_loop(screen)`**: Loop principal do jogo. Gerencia os eventos, atualiza as posições dos objetos, verifica colisões, e renderiza a tela.
+
+  - **`reset()`**: Reseta o estado do jogo para as configurações iniciais.
+
+  - **`reset_obstacle()`**: Reseta a posição e escala de um obstáculo.
+
+  - **`reset_pad()`**: Reseta a posição e escala de um pad.
+
+  - **`reset_slow_obstacle()`**: Reseta a posição e escala de um obstáculo de redução de velocidade.
+
+  - **`render(screen, boost_active)`**: Renderiza os elementos do jogo na tela.
+
+  - **`collision_check(x1, y1, car, x2, y2, obstacle, scale)`**: Verifica a colisão entre o carro e um obstáculo ou pad.
+
+  - **`pause_menu(screen)`**: Exibe o menu de pausa e gerencia a lógica de pausa.
+
+  - **`options_menu(screen)`**: Exibe o menu de opções e gerencia as configurações do jogo, como resolução, volume, e linguagem.
+
+  - **`draw_transparent_background(screen, alpha)`**: Desenha um fundo transparente na tela.
+
+  - **`draw_text(text, font, color, surface, x, y)`**: Desenha texto na tela.
 
 #### `Renderer`
+
 Responsável por desenhar elementos na tela, incluindo o carro, obstáculos, pads e animações.
 
 #### `Animation`
+
 Gerencia a animação da pista, criando um efeito de rolagem infinita.
 
 ### Funções Auxiliares
+
+Além da `GameLogic`, o código utiliza várias funções e classes de módulos importados para desenhar botões, gerenciar gráficos, e gerenciar pontuações.
+
+- **Módulo `buttons`**: Contém funções para desenhar botões e gerenciar as opções do jogo.
+
+- **Módulo `graphics`**: Contém funções para renderizar gráficos, textos, animações, e gerenciar a interface de usuário.
+
+- **Módulo `sprite`**: Contém definições de sprites para o carro, obstáculos, e pads.
+
+- **Módulo `score_manager`**: Contém funções para salvar e recuperar pontuações.
 
 - `save_score(score)`: Salva a pontuação atual em um arquivo JSON.
 - `get_high_score()`: Retorna a maior pontuação salva.
 - `display_scores(screen)`: Exibe as 5 melhores pontuações na tela.
 
-## Requisitos
+### Arquivos
 
-- Python 3.x
-- Pygame
+- `main.py`: Arquivo principal que inicia o jogo.
+- `config.py`: Contém constantes e configurações globais, como dimensões da tela, limites da pista e cores.
+- `buttons.py`: Funções para desenhar e gerenciar botões.
+- `graphics.py`: Contém classes e funções relacionadas ao renderização, animações e exibição de textos.
+- `sprite.py`: Contém a inicialização de sprites e máscaras para colisão.
+- `score_manager.py`: Gerenciamento de pontuações.
+- `game_logic.py`: Contém a lógica principal do jogo, incluindo o loop do jogo, controle do carro, movimentação de obstáculos, detecção de colisões e gerenciamento de pontuações.
 
 ## Instalação
 
 1. Clone este repositório:
+
    ```sh
    git clone https://github.com/APB-Abner/Game_Python.git
    ```
+
 2. Navegue até o diretório do projeto:
+
    ```sh
    cd Game_Python
    ```
+
 3. Instale as dependências:
+
    ```sh
    pip install pygame
    ```
 
-## Como Executar
+## Uso
 
-1. Execute o script do jogo:
-   ```sh
-   python teste_game.py
-   ```
+Para iniciar o jogo, execute o arquivo principal:
 
+```bash
+python main.py
+```
+
+## Como Jogar
+
+### Controles
+
+1. **Movimentação:**
+   - Use a tecla `←` (seta esquerda) para mover o carro para a esquerda.
+   - Use a tecla `→` (seta direita) para mover o carro para a direita.
+
+2. **Coletar Pads:**
+   - Colete pads que aparecem na pista para acumular boosts.
+
+3. **Ativar Boost:**
+   - Pressione a barra de espaço (`SPACE`) para ativar o boost de velocidade (requer 3 pads coletados).
+
+4. **Pausar Jogo:**
+   - Pressione a tecla `P` ou `ESC` para pausar o jogo.
+
+5. **Reiniciar após Colisão:**
+   - Pressione `R` para reiniciar o jogo após uma colisão.
+   - Pressione `Q` para sair do jogo após uma colisão.
+
+### Menus
+
+#### Menu de Pausa
+
+No menu de pausa, você pode:
+
+- **Continuar:** Continuar jogando
+- **Opções:** Abrir o menu de opções
+- **Sair:** Sair do jogo
+
+#### Menu de Opções
+
+No menu de opções ainda não é possivel fazer nada!
+
+## Contribuições
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
+
+1. Faça um fork do projeto
+2. Crie sua feature branch (`git checkout -b minha-nova-feature`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
+4. Faça um push para a branch (`git push origin minha-nova-feature`)
+5. Abra um pull request
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT.
