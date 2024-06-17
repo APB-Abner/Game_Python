@@ -13,8 +13,8 @@ def main_game_loop(screen):
     menu.main_menu(screen)
 
 def run_game():
-    screen, name_player = initialize_game()
-    main_game_loop(screen, name_player)
+    screen = initialize_game()
+    main_game_loop(screen)
 
 if __name__ == "__main__":
     run_game()

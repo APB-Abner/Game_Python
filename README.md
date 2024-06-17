@@ -18,6 +18,7 @@ Este é um jogo de corrida desenvolvido em Python usando a biblioteca Pygame. O 
     - [Menu de Pausa](#menu-de-pausa)
     - [Menu de Opções](#menu-de-opções)
 - [Contribuições](#contribuições)
+- [Autores](#autores)
 - [Licença](#licença)
 
 ## Funcionalidades
@@ -56,27 +57,16 @@ A classe `GameLogic` contém a lógica principal do jogo. Ela gerencia a posiç�
 
 - **Métodos:**
   - **`__init__()`**: Inicializa as variáveis do jogo, como a posição do carro, velocidade, posições e velocidades dos obstáculos e pads, e inicializa a animação e spritesheet.
-
   - **`main_loop(screen)`**: Loop principal do jogo. Gerencia os eventos, atualiza as posições dos objetos, verifica colisões, e renderiza a tela.
-
   - **`reset()`**: Reseta o estado do jogo para as configurações iniciais.
-
   - **`reset_obstacle()`**: Reseta a posição e escala de um obstáculo.
-
   - **`reset_pad()`**: Reseta a posição e escala de um pad.
-
   - **`reset_slow_obstacle()`**: Reseta a posição e escala de um obstáculo de redução de velocidade.
-
   - **`render(screen, boost_active)`**: Renderiza os elementos do jogo na tela.
-
   - **`collision_check(x1, y1, car, x2, y2, obstacle, scale)`**: Verifica a colisão entre o carro e um obstáculo ou pad.
-
   - **`pause_menu(screen)`**: Exibe o menu de pausa e gerencia a lógica de pausa.
-
   - **`options_menu(screen)`**: Exibe o menu de opções e gerencia as configurações do jogo, como resolução, volume, e linguagem.
-
   - **`draw_transparent_background(screen, alpha)`**: Desenha um fundo transparente na tela.
-
   - **`draw_text(text, font, color, surface, x, y)`**: Desenha texto na tela.
 
 #### `Renderer`
@@ -93,11 +83,8 @@ A classe `Menu` gerencia a interface do menu principal do jogo, incluindo as op�
 
 - **Métodos:**
   - **`__init__()`**: Inicializa as variáveis de volume e estado das opções.
-
   - **`draw_transparent_background(screen, alpha)`**: Desenha um fundo transparente na tela do menu.
-
   - **`draw_text(text, font, color, surface, x, y)`**: Desenha texto na tela do menu.
-
   - **`main_menu(screen, name_player)`**: Gerencia o loop do menu principal, exibindo botões e respondendo a eventos do usuário.
 
 ### Funções Auxiliares
@@ -105,16 +92,12 @@ A classe `Menu` gerencia a interface do menu principal do jogo, incluindo as op�
 Além da `GameLogic` e `Menu`, o código utiliza várias funções e classes de módulos importados para desenhar botões, gerenciar gráficos, e gerenciar pontuações.
 
 - **Módulo `buttons`**: Contém funções para desenhar botões e gerenciar as opções do jogo.
-
 - **Módulo `graphics`**: Contém funções para renderizar gráficos, textos, animações, e gerenciar a interface de usuário.
-
 - **Módulo `sprite`**: Contém definições de sprites para o carro, obstáculos, e pads.
-
 - **Módulo `score_manager`**: Contém funções para salvar e recuperar pontuações.
-
-- `save_score(score)`: Salva a pontuação atual em um arquivo JSON.
-- `get_high_score()`: Retorna a maior pontuação salva.
-- `display_scores(screen)`: Exibe as 5 melhores pontuações na tela.
+  - `save_score(score)`: Salva a pontuação atual em um arquivo JSON.
+  - `get_high_score()`: Retorna a maior pontuação salva.
+  - `display_scores(screen)`: Exibe as 5 melhores pontuações na tela.
 
 ### Arquivos
 
@@ -187,7 +170,7 @@ No menu de pausa, você pode:
 
 #### Menu de Opções
 
-No menu de opções ainda não é possivel fazer nada!
+No menu de opções ainda não é possível fazer nada!
 
 ## Contribuições
 
@@ -198,6 +181,14 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull re
 3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
 4. Faça um push para a branch (`git push origin minha-nova-feature`)
 5. Abra um pull request
+
+## Autores
+
+- **Abner de Paiva Barbosa**: RM 558468
+- **Beatriz Vieira de Novais**: RM 554746
+- **Fernando Luiz Silva Antonio**: RM 555201
+- **Mariana Neugebauer Dourado**: RM 550494
+- **Thomas de Almeida Reichmann**: RM 554812
 
 ## Licença
 
